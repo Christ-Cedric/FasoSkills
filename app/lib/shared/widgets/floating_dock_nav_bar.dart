@@ -48,11 +48,11 @@ class FloatingDockNavBar extends StatelessWidget {
             label: 'Accueil',
           ),
 
-          // 2. Messages
+          // 2. Discussions
           _buildNavItem(
             index: 1,
-            icon: Icons.chat_bubble_outline_rounded,
-            label: 'Messages',
+            icon: Icons.forum_outlined,
+            label: 'Discussions',
           ),
 
           // 3. Le plus (Bouton central surélevé)

@@ -9,10 +9,12 @@ import '../../features/auth/presentation/screens/profile_screen.dart';
 import '../../features/artisans/presentation/screens/home_screen.dart';
 import '../../features/artisans/presentation/screens/search_screen.dart';
 import '../../features/artisans/presentation/screens/service_details_screen.dart';
+import '../../features/artisans/presentation/screens/artisans_list_screen.dart';
 import '../../features/requests/presentation/screens/my_requests_screen.dart';
 import '../../features/requests/presentation/screens/request_quote_screen.dart';
 import '../../features/requests/presentation/screens/portfolio_screen.dart';
-import '../../features/chat/presentation/screens/messages_screen.dart';
+import '../../features/chat/presentation/screens/discussions_list_screen.dart';
+import '../../features/chat/presentation/screens/chat_detail_screen.dart';
 import '../../features/admin/dashboard/presentation/screens/admin_dashboard_screen.dart';
 import '../../features/admin/artisans/presentation/screens/admin_artisans_screen.dart';
 import '../../features/admin/artisans/presentation/screens/admin_artisan_detail_screen.dart';
@@ -101,7 +103,23 @@ class AppRouter {
       ),
       GoRoute(
         path: '/messages',
-        builder: (context, state) => const MessagesScreen(),
+        builder: (context, state) => const DiscussionsListScreen(),
+      ),
+      GoRoute(
+        path: '/discussions',
+        builder: (context, state) => const DiscussionsListScreen(),
+      ),
+      GoRoute(
+        path: '/chat-detail',
+        builder: (context, state) => ChatDetailScreen(
+          conversationData: state.extra as Map<String, dynamic>?,
+        ),
+      ),
+      GoRoute(
+        path: '/artisans-list',
+        builder: (context, state) => ArtisansListScreen(
+          initialCategory: state.extra as String?,
+        ),
       ),
       // ── Admin Routes (§7.2) ──────────────────────────────────────────────
       GoRoute(

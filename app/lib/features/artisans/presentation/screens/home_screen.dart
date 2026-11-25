@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../shared/widgets/floating_dock_nav_bar.dart';
 import '../bloc/artisan_list_bloc.dart';
-import '../../domain/models/artisan.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -124,7 +123,7 @@ class _HomeScreenState extends State<HomeScreen> {
       'label': 'Artisans vérifiés',
       'icon': Icons.verified_rounded,
       'color': const Color(0xFF2563EB),
-      'route': '/search',
+      'route': '/artisans-list',
     },
     {
       'label': 'Devis direct',
@@ -137,6 +136,66 @@ class _HomeScreenState extends State<HomeScreen> {
       'icon': Icons.assignment_rounded,
       'color': const Color(0xFF6366F1),
       'route': '/requests',
+    },
+  ];
+
+  // Available artisans mock for instant display matching mockup
+  final List<Map<String, dynamic>> _availableArtisansMock = [
+    {
+      'id': 'art_1',
+      'fullName': 'Moussa Kaboré',
+      'specialty': 'Plombier Sanitaire',
+      'experience': '8 ans d\'expérience',
+      'city': 'Ouagadougou',
+      'district': 'Ouaga 2000',
+      'rating': 4.9,
+      'reviewsCount': '200',
+      'hourlyRate': '5 000 F / h',
+      'isAvailable': true,
+      'avatarGradient': [Color(0xFF1E3A8A), Color(0xFF2563EB)],
+      'icon': Icons.plumbing_rounded,
+    },
+    {
+      'id': 'art_2',
+      'fullName': 'Ibrahim Traoré',
+      'specialty': 'Menuisier Ébéniste',
+      'experience': '12 ans d\'expérience',
+      'city': 'Ouagadougou',
+      'district': 'Somgandé',
+      'rating': 5.0,
+      'reviewsCount': '180',
+      'hourlyRate': '7 500 F / h',
+      'isAvailable': true,
+      'avatarGradient': [Color(0xFFD97706), Color(0xFFB45309)],
+      'icon': Icons.carpenter_rounded,
+    },
+    {
+      'id': 'art_3',
+      'fullName': 'Kassoum Ouédraogo',
+      'specialty': 'Électricien Bâtiment',
+      'experience': '9 ans d\'expérience',
+      'city': 'Ouagadougou',
+      'district': 'Karpala',
+      'rating': 4.8,
+      'reviewsCount': '95',
+      'hourlyRate': '6 000 F / h',
+      'isAvailable': true,
+      'avatarGradient': [Color(0xFF0F172A), Color(0xFF334155)],
+      'icon': Icons.electrical_services_rounded,
+    },
+    {
+      'id': 'art_5',
+      'fullName': 'Fatou Diallo',
+      'specialty': 'Peinture Déco',
+      'experience': '7 ans d\'expérience',
+      'city': 'Ouagadougou',
+      'district': 'Dassasgho',
+      'rating': 4.9,
+      'reviewsCount': '110',
+      'hourlyRate': '5 500 F / h',
+      'isAvailable': true,
+      'avatarGradient': [Color(0xFF7C3AED), Color(0xFF5B21B6)],
+      'icon': Icons.format_paint_rounded,
     },
   ];
 
@@ -214,14 +273,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     const SizedBox(height: 26),
 
-                    // 7. Recent Projects
-                    _buildRecentProjectsSection(),
+                    // 7. Artisans disponibles (Replaces Recent Projects completely)
+                    _buildAvailableArtisansSection(),
                   ],
                 ),
               ),
             ),
 
-            // 8. Floating Glassmorphism Dock Bottom Bar (5 tabs)
+            // 8. Floating Glassmorphism Dock Bottom Bar (5 tabs with Discussions)
             Positioned(
               left: 0,
               right: 0,
@@ -237,9 +296,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       curve: Curves.easeOut,
                     );
                   } else if (idx == 1) {
-                    context.push('/messages');
+                    context.push('/discussions');
                   } else if (idx == 3) {
-                    context.push('/search');
+                    context.push('/artisans-list');
                   } else if (idx == 4) {
                     context.push('/profile');
                   }
@@ -323,7 +382,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: Color(0xFF1E293B),
                     size: 22,
                   ),
-                  onPressed: () => context.push('/messages'),
+                  onPressed: () => context.push('/discussions'),
                 ),
                 Positioned(
                   top: 0,
@@ -502,7 +561,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       child: TextField(
         readOnly: true,
-        onTap: () => context.push('/search'),
+        onTap: () => context.push('/artisans-list'),
         decoration: const InputDecoration(
           hintText: 'Rechercher un service, artisan...',
           hintStyle: TextStyle(fontSize: 14, color: Color(0xFF94A3B8)),
@@ -514,7 +573,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /// 5. Featured Services Grid (4 x 2)
+  /// 5. Featured Services Grid (4 x 2) - Tapping directs to ArtisansListScreen
   Widget _buildFeaturedServicesSection() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -545,7 +604,8 @@ class _HomeScreenState extends State<HomeScreen> {
               final service = _featuredServices[index];
               return GestureDetector(
                 onTap: () {
-                  context.push('/service-details', extra: service);
+                  // Direct to dedicated professionals list with this category!
+                  context.push('/artisans-list', extra: service['title']);
                 },
                 child: Column(
                   children: [
@@ -656,8 +716,8 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /// 7. Recent Projects
-  Widget _buildRecentProjectsSection() {
+  /// 7. Artisans disponibles (Replaces Recent Projects completely - Inspired by Screen 1 of reference image)
+  Widget _buildAvailableArtisansSection() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: Column(
@@ -667,7 +727,7 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'Recent Projects',
+                'Artisans disponibles',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
@@ -675,60 +735,64 @@ class _HomeScreenState extends State<HomeScreen> {
                   letterSpacing: -0.3,
                 ),
               ),
-              Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.chevron_left_rounded, size: 24, color: Color(0xFF64748B)),
-                    onPressed: () {
-                      _scrollController.animateTo(
-                        0,
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeOut,
-                      );
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.chevron_right_rounded, size: 24, color: Color(0xFF64748B)),
-                    onPressed: () {
-                      _scrollController.animateTo(
-                        200,
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeOut,
-                      );
-                    },
-                  ),
-                ],
+              GestureDetector(
+                onTap: () => context.push('/artisans-list'),
+                child: Row(
+                  children: const [
+                    Text(
+                      'Voir tout',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF2563EB),
+                      ),
+                    ),
+                    SizedBox(width: 2),
+                    Icon(Icons.chevron_right_rounded, size: 18, color: Color(0xFF2563EB)),
+                  ],
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
+
+          // Horizontal Available Artisans Cards Carousel
           BlocBuilder<ArtisanListBloc, ArtisanListState>(
             builder: (context, state) {
-              if (state is ArtisanListLoading) {
-                return const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(24.0),
-                    child: CircularProgressIndicator(color: AppTheme.primaryColor),
-                  ),
-                );
-              }
-
+              final List<Map<String, dynamic>> displayList;
               if (state is ArtisanListLoaded && state.artisans.isNotEmpty) {
-                return SizedBox(
-                  height: 190,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: state.artisans.length,
-                    separatorBuilder: (_, __) => const SizedBox(width: 14),
-                    itemBuilder: (context, index) {
-                      final artisan = state.artisans[index];
-                      return _buildRecentProjectCard(artisan);
-                    },
-                  ),
-                );
+                displayList = state.artisans.map((a) {
+                  return {
+                    'id': a.id,
+                    'fullName': a.fullName,
+                    'specialty': a.specialty,
+                    'experience': '${a.experienceYears > 0 ? a.experienceYears : 6} ans d\'expérience',
+                    'city': a.city,
+                    'district': a.city,
+                    'rating': a.rating,
+                    'reviewsCount': '${a.reviewsCount > 0 ? a.reviewsCount : 120}',
+                    'hourlyRate': '5 000 F / h',
+                    'isAvailable': a.availability.toLowerCase().contains('dispo'),
+                    'avatarGradient': [const Color(0xFF1E3A8A), const Color(0xFF2563EB)],
+                    'icon': Icons.handyman_rounded,
+                  };
+                }).toList();
+              } else {
+                displayList = _availableArtisansMock;
               }
 
-              return _buildFallbackProjects();
+              return SizedBox(
+                height: 215,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: displayList.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 14),
+                  itemBuilder: (context, index) {
+                    final art = displayList[index];
+                    return _buildAvailableArtisanCard(art);
+                  },
+                ),
+              );
             },
           ),
         ],
@@ -736,16 +800,19 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildRecentProjectCard(Artisan artisan) {
+  /// Available Artisan Card (Inspired directly by Screen 1 of reference image)
+  Widget _buildAvailableArtisanCard(Map<String, dynamic> art) {
+    final gradient = art['avatarGradient'] as List<Color>;
+
     return GestureDetector(
       onTap: () {
-        context.push('/contact', extra: artisan);
+        context.push('/contact', extra: art);
       },
       child: Container(
-        width: 240,
+        width: 175,
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(22),
           border: Border.all(color: const Color(0xFFE2E8F0)),
           boxShadow: [
             BoxShadow(
@@ -758,12 +825,14 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Top Image / Avatar container
             Container(
-              height: 100,
-              decoration: const BoxDecoration(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              height: 105,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(21)),
                 gradient: LinearGradient(
-                  colors: [Color(0xFF1E3A8A), Color(0xFF3B82F6)],
+                  colors: gradient,
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -772,27 +841,54 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Center(
                     child: Icon(
-                      Icons.architecture_rounded,
-                      color: Colors.white.withValues(alpha: 0.3),
+                      art['icon'] as IconData,
                       size: 48,
+                      color: Colors.white.withValues(alpha: 0.7),
                     ),
                   ),
+
+                  // Top right Online Green Dot
                   Positioned(
-                    top: 10,
-                    right: 10,
+                    top: 8,
+                    right: 8,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                       decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(12),
+                        color: Colors.black.withValues(alpha: 0.4),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                       child: Row(
-                        children: [
-                          const Icon(Icons.star, size: 12, color: Colors.amber),
-                          const SizedBox(width: 4),
+                        mainAxisSize: MainAxisSize.min,
+                        children: const [
+                          Icon(Icons.circle, color: Color(0xFF10B981), size: 7),
+                          SizedBox(width: 4),
                           Text(
-                            '${artisan.rating}',
-                            style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                            'Dispo',
+                            style: TextStyle(color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // Bottom rating badge
+                  Positioned(
+                    left: 8,
+                    bottom: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2.5),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.95),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.star_rounded, size: 12, color: Color(0xFFF59E0B)),
+                          const SizedBox(width: 2),
+                          Text(
+                            '${art['rating']}',
+                            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
                           ),
                         ],
                       ),
@@ -801,49 +897,71 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
+
+            // Bottom Information
             Padding(
-              padding: const EdgeInsets.all(12.0),
+              padding: const EdgeInsets.all(10.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    artisan.fullName,
+                    art['fullName'] as String,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF0F172A)),
+                    style: const TextStyle(
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF0F172A),
+                    ),
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    '${artisan.specialty} • ${artisan.city}',
-                    style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                    art['specialty'] as String,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF2563EB),
+                    ),
+                  ),
+                  const SizedBox(height: 1),
+                  Text(
+                    '${art['experience']}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 10,
+                      color: Color(0xFF64748B),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        art['hourlyRate'] as String,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF0F172A),
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF0F172A),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.add_rounded, size: 12, color: Colors.white),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildFallbackProjects() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        children: const [
-          Icon(Icons.info_outline, color: AppTheme.primaryColor),
-          SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              'Aucun artisan disponible pour le moment. Créez une demande pour être contacté.',
-              style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
-            ),
-          ),
-        ],
       ),
     );
   }

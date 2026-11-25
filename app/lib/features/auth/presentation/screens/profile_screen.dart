@@ -69,8 +69,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   currentIndex: _dockIndex,
                   onItemSelected: (idx) {
                     if (idx == 0) context.go('/home');
-                    if (idx == 1) context.push('/messages');
-                    if (idx == 3) context.push('/search');
+                    if (idx == 1) context.push('/discussions');
+                    if (idx == 3) context.push('/artisans-list');
                   },
                   onCenterFabTap: () => context.push('/request-quote'),
                 ),
@@ -342,14 +342,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
         'subtitle': 'Artisans et prestataires favoris',
         'icon': Icons.handyman_rounded,
         'color': const Color(0xFF10B981),
-        'route': '/search',
+        'route': '/artisans-list',
       },
       {
-        'title': 'Notifications',
-        'subtitle': 'Alertes de devis et messages',
-        'icon': Icons.notifications_none_rounded,
+        'title': 'Discussions',
+        'subtitle': 'Échanges et messages en direct',
+        'icon': Icons.forum_outlined,
         'color': const Color(0xFFEAB308),
-        'route': '/messages',
+        'route': '/discussions',
       },
       {
         'title': 'Settings',
