@@ -33,6 +33,22 @@ class AppTheme {
   static const Color statusCompleted = Color(0xFF3730A3);
   static const Color statusUnavailable = Color(0xFF94A3B8);
 
+  // ── Palette Admin (Maquettes & §13) ──────────────────────────────────────
+  static const Color adminIndigo = Color(0xFF1E1B4B);
+  static const Color adminIndigoDeep = Color(0xFF312E81);
+  static const Color adminOrange = Color(0xFFF97316);
+  static const Color adminAmberSoft = Color(0xFFFEF3C7);
+  static const Color adminCream = Color(0xFFFFF6EE);
+  static const Color adminPeach = Color(0xFFFDE8D7);
+  static const Color adminEmerald = Color(0xFF10B981);
+  static const Color adminSuccess = Color(0xFF16A34A);
+  static const Color adminMintButton = Color(0xFF5EEAD4);
+  static const Color adminMintSoft = Color(0xFFDCFCE7);
+  static const Color adminDanger = Color(0xFFDC2626);
+  static const Color adminDangerSoft = Color(0xFFFEE2E2);
+  static const Color adminBackground = Color(0xFFF8FAFC);
+  static const Color adminCardBorder = Color(0xFFE2E8F0);
+
   // ── Glassmorphism ───────────────────────────────────────────────────────
   static Color glassBackground = Colors.white.withValues(alpha: 0.12);
   static Color glassBorder = Colors.white.withValues(alpha: 0.20);

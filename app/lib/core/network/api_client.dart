@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'package:http/http.dart' as http;
 import '../config/app_config.dart';
 import '../errors/failure.dart';
@@ -27,9 +26,8 @@ class ApiClient {
     Map<String, String>? queryParams,
     bool requiresAuth = true,
   }) async {
-    final headers = await _buildHeaders(requiresAuth);
     return _sendRequest(
-      () => _client.get(
+      (headers) => _client.get(
         _buildUri(endpoint, queryParams),
         headers: headers,
       ),
@@ -42,9 +40,8 @@ class ApiClient {
     dynamic body,
     bool requiresAuth = true,
   }) async {
-    final headers = await _buildHeaders(requiresAuth);
     return _sendRequest(
-      () => _client.post(
+      (headers) => _client.post(
         _buildUri(endpoint),
         headers: headers,
         body: body != null ? jsonEncode(body) : null,
@@ -58,9 +55,23 @@ class ApiClient {
     dynamic body,
     bool requiresAuth = true,
   }) async {
-    final headers = await _buildHeaders(requiresAuth);
     return _sendRequest(
-      () => _client.put(
+      (headers) => _client.put(
+        _buildUri(endpoint),
+        headers: headers,
+        body: body != null ? jsonEncode(body) : null,
+      ),
+      requiresAuth: requiresAuth,
+    );
+  }
+
+  Future<dynamic> patch(
+    String endpoint, {
+    dynamic body,
+    bool requiresAuth = true,
+  }) async {
+    return _sendRequest(
+      (headers) => _client.patch(
         _buildUri(endpoint),
         headers: headers,
         body: body != null ? jsonEncode(body) : null,
@@ -71,13 +82,14 @@ class ApiClient {
 
   Future<dynamic> delete(
     String endpoint, {
+    dynamic body,
     bool requiresAuth = true,
   }) async {
-    final headers = await _buildHeaders(requiresAuth);
     return _sendRequest(
-      () => _client.delete(
+      (headers) => _client.delete(
         _buildUri(endpoint),
         headers: headers,
+        body: body != null ? jsonEncode(body) : null,
       ),
       requiresAuth: requiresAuth,
     );
@@ -108,18 +120,19 @@ class ApiClient {
   }
 
   Future<dynamic> _sendRequest(
-    Future<http.Response> Function() requestFn, {
+    Future<http.Response> Function(Map<String, String> headers) requestFn, {
     required bool requiresAuth,
     bool isRetry = false,
   }) async {
     try {
-      final response = await requestFn().timeout(AppConfig.receiveTimeout);
+      final headers = await _buildHeaders(requiresAuth);
+      final response = await requestFn(headers).timeout(AppConfig.receiveTimeout);
 
       if (response.statusCode == 401 && requiresAuth && !isRetry) {
-        // Concurrency-safe token refresh handling
+        // Concurrency-safe token refresh handling (F6)
         final refreshed = await _handleTokenRefresh();
         if (refreshed) {
-          // Retry the request once with new token
+          // Retry the request once with freshly built headers carrying the new access token
           return await _sendRequest(requestFn, requiresAuth: requiresAuth, isRetry: true);
         } else {
           throw const AuthFailure('Session expirée, veuillez vous reconnecter');
@@ -127,13 +140,16 @@ class ApiClient {
       }
 
       return _handleResponse(response);
-    } on SocketException {
-      throw const NetworkFailure();
+    } on http.ClientException catch (e) {
+      throw NetworkFailure('Problème de connexion réseau: ${e.message}');
     } on TimeoutException {
       throw const NetworkFailure('Délai d’attente dépassé (timeout)');
     } on Failure {
       rethrow;
     } catch (e) {
+      if (e.toString().contains('SocketException')) {
+        throw const NetworkFailure();
+      }
       throw ServerFailure('Une erreur inattendue est survenue: $e');
     }
   }
@@ -184,6 +200,12 @@ class ApiClient {
   }
 
   dynamic _handleResponse(http.Response response) {
+    if (response.statusCode == 204 || response.body.trim().isEmpty) {
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        return null;
+      }
+    }
+
     dynamic jsonBody;
     try {
       jsonBody = jsonDecode(response.body);
