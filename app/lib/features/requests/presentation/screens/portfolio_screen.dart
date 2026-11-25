@@ -193,8 +193,9 @@ class _PortfolioScreenState extends State<PortfolioScreen> {
                 currentIndex: _dockIndex,
                 onItemSelected: (idx) {
                   if (idx == 0) context.go('/home');
-                  if (idx == 1) context.push('/search');
-                  if (idx == 3) context.push('/profile');
+                  if (idx == 1) context.push('/messages');
+                  if (idx == 3) context.push('/search');
+                  if (idx == 4) context.push('/profile');
                 },
                 onCenterFabTap: () => context.push('/request-quote'),
               ),

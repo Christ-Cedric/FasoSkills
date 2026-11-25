@@ -12,7 +12,7 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  final int _dockIndex = 3; // Profile tab
+  final int _dockIndex = 4; // Profil tab
 
   @override
   Widget build(BuildContext context) {
@@ -69,8 +69,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   currentIndex: _dockIndex,
                   onItemSelected: (idx) {
                     if (idx == 0) context.go('/home');
-                    if (idx == 1) context.push('/search');
-                    if (idx == 2) context.push('/portfolio');
+                    if (idx == 1) context.push('/messages');
+                    if (idx == 3) context.push('/search');
                   },
                   onCenterFabTap: () => context.push('/request-quote'),
                 ),
