@@ -57,7 +57,8 @@ class ModerationRepositoryImpl implements ModerationRepository {
       if (resolutionNote != null && resolutionNote.trim().isNotEmpty) {
         body['resolutionNote'] = resolutionNote.trim();
       }
-      final res = await _apiClient.patch('/admin/reports/$reportId', body: body);
+      final res =
+          await _apiClient.patch('/admin/reports/$reportId', body: body);
       return Success(AdminReport.fromJson(res['data'] as Map<String, dynamic>));
     } on Failure catch (f) {
       return FailureResult(f);

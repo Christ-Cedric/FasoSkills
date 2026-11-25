@@ -42,7 +42,8 @@ class CancelRequestOptimistic extends RequestEvent {
 class RequestStatusUpdatedFromWs extends RequestEvent {
   final String requestId;
   final String newStatus;
-  const RequestStatusUpdatedFromWs({required this.requestId, required this.newStatus});
+  const RequestStatusUpdatedFromWs(
+      {required this.requestId, required this.newStatus});
   @override
   List<Object?> get props => [requestId, newStatus];
 }
@@ -105,7 +106,8 @@ class RequestBloc extends Bloc<RequestEvent, RequestState> {
     on<RequestStatusUpdatedFromWs>(_onRequestStatusUpdatedFromWs);
   }
 
-  Future<void> _onLoadMyRequests(LoadMyRequests event, Emitter<RequestState> emit) async {
+  Future<void> _onLoadMyRequests(
+      LoadMyRequests event, Emitter<RequestState> emit) async {
     emit(RequestLoading());
     final result = await _repository.getMyRequests();
     result.when(
@@ -120,7 +122,8 @@ class RequestBloc extends Bloc<RequestEvent, RequestState> {
     );
   }
 
-  Future<void> _onCreateRequestSubmitted(CreateRequestSubmitted event, Emitter<RequestState> emit) async {
+  Future<void> _onCreateRequestSubmitted(
+      CreateRequestSubmitted event, Emitter<RequestState> emit) async {
     emit(RequestLoading());
     final result = await _repository.createRequest(
       title: event.title,
@@ -137,7 +140,8 @@ class RequestBloc extends Bloc<RequestEvent, RequestState> {
   }
 
   /// Requirement F8: Optimistic update with rollback
-  Future<void> _onCancelRequestOptimistic(CancelRequestOptimistic event, Emitter<RequestState> emit) async {
+  Future<void> _onCancelRequestOptimistic(
+      CancelRequestOptimistic event, Emitter<RequestState> emit) async {
     if (state is! RequestLoaded) return;
     final currentRequests = (state as RequestLoaded).requests;
 
@@ -150,7 +154,8 @@ class RequestBloc extends Bloc<RequestEvent, RequestState> {
       return r;
     }).toList();
 
-    emit(RequestLoaded(optimisticList, notificationMessage: 'Annulation en cours...'));
+    emit(RequestLoaded(optimisticList,
+        notificationMessage: 'Annulation en cours...'));
 
     // 2. Perform API request in background
     final result = await _repository.cancelRequest(event.requestId);
@@ -161,17 +166,20 @@ class RequestBloc extends Bloc<RequestEvent, RequestState> {
         final finalizedList = optimisticList.map((r) {
           return r.id == updatedRequest.id ? updatedRequest : r;
         }).toList();
-        emit(RequestLoaded(finalizedList, notificationMessage: 'Demande annulée avec succès'));
+        emit(RequestLoaded(finalizedList,
+            notificationMessage: 'Demande annulée avec succès'));
       },
       failure: (failure) {
         // Rollback on failure!
-        emit(RequestLoaded(previousRequests, notificationMessage: 'Échec de l’annulation: ${failure.message}'));
+        emit(RequestLoaded(previousRequests,
+            notificationMessage: 'Échec de l’annulation: ${failure.message}'));
       },
     );
   }
 
   /// Real-time update from WebSocket: instant sync without manual reload!
-  void _onRequestStatusUpdatedFromWs(RequestStatusUpdatedFromWs event, Emitter<RequestState> emit) {
+  void _onRequestStatusUpdatedFromWs(
+      RequestStatusUpdatedFromWs event, Emitter<RequestState> emit) {
     if (state is RequestLoaded) {
       final list = (state as RequestLoaded).requests.map((r) {
         if (r.id == event.requestId) {
@@ -179,7 +187,8 @@ class RequestBloc extends Bloc<RequestEvent, RequestState> {
         }
         return r;
       }).toList();
-      emit(RequestLoaded(list, notificationMessage: 'Mise à jour reçue en temps réel'));
+      emit(RequestLoaded(list,
+          notificationMessage: 'Mise à jour reçue en temps réel'));
     }
   }
 }

@@ -13,7 +13,8 @@ abstract class Failure extends Equatable {
 
 class ServerFailure extends Failure {
   final int? statusCode;
-  const ServerFailure(super.message, {super.code, super.details, this.statusCode});
+  const ServerFailure(super.message,
+      {super.code, super.details, this.statusCode});
 }
 
 class ValidationFailure extends Failure {
@@ -29,7 +30,10 @@ class ValidationFailure extends Failure {
       if (item is Map) {
         final field = item['field']?.toString();
         final msg = item['message']?.toString();
-        if (field != null && field.isNotEmpty && msg != null && msg.isNotEmpty) {
+        if (field != null &&
+            field.isNotEmpty &&
+            msg != null &&
+            msg.isNotEmpty) {
           map[field] = msg;
         }
       }

@@ -71,7 +71,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           }
         },
         builder: (context, state) {
-          if (state is AdminDashboardLoading || state is AdminDashboardInitial) {
+          if (state is AdminDashboardLoading ||
+              state is AdminDashboardInitial) {
             return const AdminLoadingView(
               message: 'Chargement du tableau de bord...',
             );
@@ -657,9 +658,8 @@ class _CategoriesQuickCard extends StatelessWidget {
                   return Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: ActionChip(
-                      backgroundColor: isFirst
-                          ? AppTheme.adminOrange
-                          : AppTheme.adminIndigo,
+                      backgroundColor:
+                          isFirst ? AppTheme.adminOrange : AppTheme.adminIndigo,
                       side: BorderSide.none,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
@@ -893,10 +893,12 @@ class _PendingArtisanCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    icon: const Icon(Icons.check_circle_outline_rounded, size: 17),
+                    icon: const Icon(Icons.check_circle_outline_rounded,
+                        size: 17),
                     label: const Text(
                       'Vérifier',
-                      style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
+                      style:
+                          TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
                     ),
                   ),
                 ),
@@ -926,7 +928,8 @@ class _PendingArtisanCard extends StatelessWidget {
                     icon: const Icon(Icons.close_rounded, size: 17),
                     label: const Text(
                       'Refuser',
-                      style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
+                      style:
+                          TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
                     ),
                   ),
                 ),
@@ -1035,7 +1038,10 @@ class _ChartCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final maxVal = items.isEmpty
         ? 1
-        : items.map((e) => e.value).reduce((a, b) => a > b ? a : b).clamp(1, 1 << 30);
+        : items
+            .map((e) => e.value)
+            .reduce((a, b) => a > b ? a : b)
+            .clamp(1, 1 << 30);
 
     return Container(
       padding: const EdgeInsets.all(16),

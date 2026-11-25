@@ -293,13 +293,15 @@ class AdminCharts extends Equatable {
   }
 
   Map<String, dynamic> toJson() => {
-        'requestsByCategory': requestsByCategory.map((e) => e.toJson()).toList(),
+        'requestsByCategory':
+            requestsByCategory.map((e) => e.toJson()).toList(),
         'artisansByCity': artisansByCity.map((e) => e.toJson()).toList(),
         'requestsByStatus': requestsByStatus.map((e) => e.toJson()).toList(),
       };
 
   @override
-  List<Object?> get props => [requestsByCategory, artisansByCity, requestsByStatus];
+  List<Object?> get props =>
+      [requestsByCategory, artisansByCity, requestsByStatus];
 }
 
 class AdminStats extends Equatable {
@@ -323,13 +325,20 @@ class AdminStats extends Equatable {
 
   factory AdminStats.fromJson(Map<String, dynamic> json) {
     return AdminStats(
-      users: UserStats.fromJson((json['users'] as Map<String, dynamic>?) ?? const {}),
-      artisans: ArtisanStats.fromJson((json['artisans'] as Map<String, dynamic>?) ?? const {}),
-      requests: RequestStats.fromJson((json['requests'] as Map<String, dynamic>?) ?? const {}),
-      quotes: QuoteStats.fromJson((json['quotes'] as Map<String, dynamic>?) ?? const {}),
-      categories: CategoryStats.fromJson((json['categories'] as Map<String, dynamic>?) ?? const {}),
-      reports: ReportStats.fromJson((json['reports'] as Map<String, dynamic>?) ?? const {}),
-      charts: AdminCharts.fromJson((json['charts'] as Map<String, dynamic>?) ?? const {}),
+      users: UserStats.fromJson(
+          (json['users'] as Map<String, dynamic>?) ?? const {}),
+      artisans: ArtisanStats.fromJson(
+          (json['artisans'] as Map<String, dynamic>?) ?? const {}),
+      requests: RequestStats.fromJson(
+          (json['requests'] as Map<String, dynamic>?) ?? const {}),
+      quotes: QuoteStats.fromJson(
+          (json['quotes'] as Map<String, dynamic>?) ?? const {}),
+      categories: CategoryStats.fromJson(
+          (json['categories'] as Map<String, dynamic>?) ?? const {}),
+      reports: ReportStats.fromJson(
+          (json['reports'] as Map<String, dynamic>?) ?? const {}),
+      charts: AdminCharts.fromJson(
+          (json['charts'] as Map<String, dynamic>?) ?? const {}),
     );
   }
 
@@ -344,5 +353,6 @@ class AdminStats extends Equatable {
       };
 
   @override
-  List<Object?> get props => [users, artisans, requests, quotes, categories, reports, charts];
+  List<Object?> get props =>
+      [users, artisans, requests, quotes, categories, reports, charts];
 }

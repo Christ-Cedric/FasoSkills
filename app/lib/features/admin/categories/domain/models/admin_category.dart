@@ -52,5 +52,6 @@ class AdminCategory extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, name, slug, icon, description, isActive, createdAt];
+  List<Object?> get props =>
+      [id, name, slug, icon, description, isActive, createdAt];
 }

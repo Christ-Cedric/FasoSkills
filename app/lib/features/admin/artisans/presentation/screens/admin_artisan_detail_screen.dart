@@ -75,7 +75,8 @@ class _AdminArtisanDetailScreenState extends State<AdminArtisanDetailScreen> {
             backgroundColor: Colors.white,
             elevation: 0,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back_rounded, color: AppTheme.adminIndigo),
+              icon: const Icon(Icons.arrow_back_rounded,
+                  color: AppTheme.adminIndigo),
               onPressed: () {
                 if (context.canPop()) {
                   context.pop();
@@ -118,9 +119,8 @@ class _AdminArtisanDetailScreenState extends State<AdminArtisanDetailScreen> {
             ),
           ),
           body: _buildBody(context, artisan, isLoading, error),
-          bottomNavigationBar: artisan != null
-              ? _BottomActionBar(artisan: artisan)
-              : null,
+          bottomNavigationBar:
+              artisan != null ? _BottomActionBar(artisan: artisan) : null,
         );
       },
     );
@@ -133,7 +133,8 @@ class _AdminArtisanDetailScreenState extends State<AdminArtisanDetailScreen> {
     String? error,
   ) {
     if (isLoading) {
-      return const AdminLoadingView(message: 'Chargement du dossier artisan...');
+      return const AdminLoadingView(
+          message: 'Chargement du dossier artisan...');
     }
 
     if (error != null) {
@@ -302,7 +303,9 @@ class _ArtisanHeaderCard extends StatelessWidget {
                     border: Border.all(color: Colors.white, width: 2),
                   ),
                   child: Icon(
-                    artisan.isVerified ? Icons.verified_rounded : Icons.schedule,
+                    artisan.isVerified
+                        ? Icons.verified_rounded
+                        : Icons.schedule,
                     size: 13,
                     color: Colors.white,
                   ),

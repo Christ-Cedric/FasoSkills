@@ -9,7 +9,8 @@ class ServiceRequest extends Equatable {
   final String city;
   final String address;
   final List<String> photos;
-  final String status; // 'pending' | 'accepted' | 'in_progress' | 'completed' | 'cancelled'
+  final String
+      status; // 'pending' | 'accepted' | 'in_progress' | 'completed' | 'cancelled'
   final String? acceptedQuoteId;
   final DateTime? createdAt;
 
@@ -68,10 +69,13 @@ class ServiceRequest extends Equatable {
       description: json['description'] ?? '',
       city: json['city'] ?? '',
       address: json['address'] ?? '',
-      photos: (json['photos'] as List?)?.map((e) => e.toString()).toList() ?? const [],
+      photos: (json['photos'] as List?)?.map((e) => e.toString()).toList() ??
+          const [],
       status: json['status'] ?? 'pending',
       acceptedQuoteId: json['acceptedQuoteId']?.toString(),
-      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt']) : null,
+      createdAt: json['createdAt'] != null
+          ? DateTime.tryParse(json['createdAt'])
+          : null,
     );
   }
 

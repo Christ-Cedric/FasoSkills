@@ -214,6 +214,14 @@ class ModerationLogEntry extends Equatable {
   }
 
   @override
-  List<Object?> get props =>
-      [id, adminName, adminEmail, action, targetType, targetId, reason, createdAt];
+  List<Object?> get props => [
+        id,
+        adminName,
+        adminEmail,
+        action,
+        targetType,
+        targetId,
+        reason,
+        createdAt
+      ];
 }

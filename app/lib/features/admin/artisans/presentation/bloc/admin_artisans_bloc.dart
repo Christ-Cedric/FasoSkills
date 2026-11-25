@@ -233,7 +233,8 @@ class AdminArtisansBloc extends Bloc<AdminArtisansEvent, AdminArtisansState> {
     result.when(
       success: (page) {
         if (page.items.isEmpty) {
-          emit(AdminArtisansEmpty(statusFilter: statusFilter, searchQuery: query));
+          emit(AdminArtisansEmpty(
+              statusFilter: statusFilter, searchQuery: query));
         } else {
           emit(
             AdminArtisansLoaded(
@@ -499,7 +500,8 @@ class AdminArtisansBloc extends Bloc<AdminArtisansEvent, AdminArtisansState> {
     );
 
     // 2. Network call
-    final result = await _repository.rejectArtisan(event.artisanId, event.reason);
+    final result =
+        await _repository.rejectArtisan(event.artisanId, event.reason);
 
     result.when(
       success: (rejectedArtisan) {

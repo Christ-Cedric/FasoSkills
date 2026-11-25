@@ -126,14 +126,16 @@ class ApiClient {
   }) async {
     try {
       final headers = await _buildHeaders(requiresAuth);
-      final response = await requestFn(headers).timeout(AppConfig.receiveTimeout);
+      final response =
+          await requestFn(headers).timeout(AppConfig.receiveTimeout);
 
       if (response.statusCode == 401 && requiresAuth && !isRetry) {
         // Concurrency-safe token refresh handling (F6)
         final refreshed = await _handleTokenRefresh();
         if (refreshed) {
           // Retry the request once with freshly built headers carrying the new access token
-          return await _sendRequest(requestFn, requiresAuth: requiresAuth, isRetry: true);
+          return await _sendRequest(requestFn,
+              requiresAuth: requiresAuth, isRetry: true);
         } else {
           throw const AuthFailure('Session expirée, veuillez vous reconnecter');
         }
@@ -238,7 +240,8 @@ class ApiClient {
           errors: errorDetails is List ? errorDetails : null,
         );
       default:
-        throw ServerFailure(errorMessage, code: errorCode, statusCode: response.statusCode);
+        throw ServerFailure(errorMessage,
+            code: errorCode, statusCode: response.statusCode);
     }
   }
 }

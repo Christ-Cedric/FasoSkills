@@ -84,10 +84,12 @@ class ArtisanListBloc extends Bloc<ArtisanListEvent, ArtisanListState> {
     on<LoadArtisans>(_onLoadArtisans);
     on<RefreshArtisans>(_onRefreshArtisans);
     // Requirement F8: Deliberate event transformer (debounce 300ms)
-    on<SearchQueryChanged>(_onSearchQueryChanged, transformer: debounce(const Duration(milliseconds: 300)));
+    on<SearchQueryChanged>(_onSearchQueryChanged,
+        transformer: debounce(const Duration(milliseconds: 300)));
   }
 
-  Future<void> _onLoadArtisans(LoadArtisans event, Emitter<ArtisanListState> emit) async {
+  Future<void> _onLoadArtisans(
+      LoadArtisans event, Emitter<ArtisanListState> emit) async {
     emit(ArtisanListLoading());
 
     // F9: Cache then network pattern
@@ -118,7 +120,8 @@ class ArtisanListBloc extends Bloc<ArtisanListEvent, ArtisanListState> {
     );
   }
 
-  Future<void> _onRefreshArtisans(RefreshArtisans event, Emitter<ArtisanListState> emit) async {
+  Future<void> _onRefreshArtisans(
+      RefreshArtisans event, Emitter<ArtisanListState> emit) async {
     final result = await _repository.getArtisans(
       categoryId: event.categoryId,
       city: event.city,
@@ -136,7 +139,8 @@ class ArtisanListBloc extends Bloc<ArtisanListEvent, ArtisanListState> {
     );
   }
 
-  Future<void> _onSearchQueryChanged(SearchQueryChanged event, Emitter<ArtisanListState> emit) async {
+  Future<void> _onSearchQueryChanged(
+      SearchQueryChanged event, Emitter<ArtisanListState> emit) async {
     emit(ArtisanListLoading());
 
     final result = await _repository.getArtisans(

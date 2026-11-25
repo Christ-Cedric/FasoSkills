@@ -71,13 +71,15 @@ class _LoginScreenState extends State<LoginScreen> {
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: AppTheme.primaryColor.withValues(alpha: 0.3),
+                              color:
+                                  AppTheme.primaryColor.withValues(alpha: 0.3),
                               blurRadius: 18,
                               offset: const Offset(0, 6),
                             ),
                           ],
                         ),
-                        child: const Icon(Icons.lock_outline_rounded, color: Colors.white, size: 36),
+                        child: const Icon(Icons.lock_outline_rounded,
+                            color: Colors.white, size: 36),
                       ),
                       const SizedBox(height: 24),
                       const Text(
@@ -93,7 +95,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       const Text(
                         'Bienvenue sur FasoSkills',
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
+                        style: TextStyle(
+                            fontSize: 14, color: AppTheme.textSecondary),
                       ),
                       const SizedBox(height: 32),
                       TextFormField(
@@ -102,7 +105,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         decoration: InputDecoration(
                           labelText: 'Adresse Email',
                           prefixIcon: const Icon(Icons.email_outlined),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12)),
                           filled: true,
                           fillColor: AppTheme.inputFillColor,
                         ),
@@ -124,10 +128,14 @@ class _LoginScreenState extends State<LoginScreen> {
                           labelText: 'Mot de passe',
                           prefixIcon: const Icon(Icons.lock_outline),
                           suffixIcon: IconButton(
-                            icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
-                            onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                            icon: Icon(_obscurePassword
+                                ? Icons.visibility_off
+                                : Icons.visibility),
+                            onPressed: () => setState(
+                                () => _obscurePassword = !_obscurePassword),
                           ),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12)),
                           filled: true,
                           fillColor: AppTheme.inputFillColor,
                         ),
@@ -145,15 +153,19 @@ class _LoginScreenState extends State<LoginScreen> {
                           backgroundColor: AppTheme.primaryColor,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
                         ),
                         child: isLoading
                             ? const SizedBox(
                                 height: 20,
                                 width: 20,
-                                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                                child: CircularProgressIndicator(
+                                    color: Colors.white, strokeWidth: 2),
                               )
-                            : const Text('Se connecter', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                            : const Text('Se connecter',
+                                style: TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.bold)),
                       ),
                       const SizedBox(height: 16),
                       TextButton(

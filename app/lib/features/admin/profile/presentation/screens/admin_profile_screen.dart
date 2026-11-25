@@ -25,7 +25,8 @@ class AdminProfileScreen extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppTheme.adminIndigo),
+          icon:
+              const Icon(Icons.arrow_back_rounded, color: AppTheme.adminIndigo),
           onPressed: () {
             if (context.canPop()) {
               context.pop();
@@ -93,7 +94,6 @@ class AdminProfileScreen extends StatelessWidget {
                             ),
                           ),
                         ),
-
                       ],
                     ),
                     const SizedBox(height: 14),
@@ -165,25 +165,6 @@ class AdminProfileScreen extends StatelessWidget {
           );
         },
       ),
-    );
-  }
-}
-
-class _MiniIconBox extends StatelessWidget {
-  final IconData icon;
-  const _MiniIconBox({required this.icon});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 34,
-      height: 34,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppTheme.adminCardBorder),
-      ),
-      child: Icon(icon, size: 17, color: AppTheme.adminIndigo),
     );
   }
 }
@@ -388,7 +369,8 @@ class _PlatformStatsSection extends StatelessWidget {
                   const SizedBox(height: 8),
                   const Text(
                     'Ouaga, Bobo, Koudougou',
-                    style: TextStyle(fontSize: 11, color: AppTheme.textSecondary),
+                    style:
+                        TextStyle(fontSize: 11, color: AppTheme.textSecondary),
                   ),
                 ],
               ),
@@ -497,7 +479,8 @@ class _ProfileMiniStat extends StatelessWidget {
             sub,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(fontSize: 11, color: color, fontWeight: FontWeight.w600),
+            style: TextStyle(
+                fontSize: 11, color: color, fontWeight: FontWeight.w600),
           ),
         ],
       ),
@@ -573,7 +556,9 @@ class _AccountSettingsSection extends StatelessWidget {
                 ),
                 trailing: const Icon(Icons.chevron_right_rounded),
                 onTap: () {
-                  context.read<ModerationBloc>().add(const LoadModerationLogs());
+                  context
+                      .read<ModerationBloc>()
+                      .add(const LoadModerationLogs());
                   context.go('/admin/moderation');
                 },
               ),

@@ -7,7 +7,8 @@ import '../../domain/repositories/chat_repository.dart';
 class ChatRepositoryImpl implements ChatRepository {
   final ApiClient _apiClient;
 
-  ChatRepositoryImpl({ApiClient? apiClient}) : _apiClient = apiClient ?? ApiClient();
+  ChatRepositoryImpl({ApiClient? apiClient})
+      : _apiClient = apiClient ?? ApiClient();
 
   @override
   Future<Result<ChatConversation>> startOrGetConversation({
@@ -46,7 +47,8 @@ class ChatRepositoryImpl implements ChatRepository {
   @override
   Future<Result<List<ChatMessage>>> getMessages(String conversationId) async {
     try {
-      final res = await _apiClient.get('/chat/conversations/$conversationId/messages');
+      final res =
+          await _apiClient.get('/chat/conversations/$conversationId/messages');
       final List list = res['data'] ?? [];
       return Success(list.map((e) => ChatMessage.fromJson(e)).toList());
     } on Failure catch (f) {

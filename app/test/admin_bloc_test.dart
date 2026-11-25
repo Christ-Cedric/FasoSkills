@@ -258,8 +258,7 @@ void main() {
         );
         return AdminArtisansBloc(repository: repo);
       },
-      act: (bloc) =>
-          bloc.add(const LoadAdminArtisans(statusFilter: 'pending')),
+      act: (bloc) => bloc.add(const LoadAdminArtisans(statusFilter: 'pending')),
       expect: () => [
         const AdminArtisansLoading(statusFilter: 'pending', searchQuery: ''),
         const AdminArtisansError(

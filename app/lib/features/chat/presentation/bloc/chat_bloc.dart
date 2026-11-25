@@ -22,7 +22,8 @@ class LoadMessages extends ChatEvent {
 class SendMessageSubmitted extends ChatEvent {
   final String conversationId;
   final String text;
-  const SendMessageSubmitted({required this.conversationId, required this.text});
+  const SendMessageSubmitted(
+      {required this.conversationId, required this.text});
   @override
   List<Object?> get props => [conversationId, text];
 }
@@ -85,18 +86,21 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     });
   }
 
-  Future<void> _onLoadMessages(LoadMessages event, Emitter<ChatState> emit) async {
+  Future<void> _onLoadMessages(
+      LoadMessages event, Emitter<ChatState> emit) async {
     emit(ChatLoading());
     _wsClient.joinRoom('conversation:${event.conversationId}');
 
     final result = await _repository.getMessages(event.conversationId);
     result.when(
-      success: (messages) => emit(ChatLoaded(messages: messages, conversationId: event.conversationId)),
+      success: (messages) => emit(
+          ChatLoaded(messages: messages, conversationId: event.conversationId)),
       failure: (failure) => emit(ChatError(failure.message)),
     );
   }
 
-  Future<void> _onSendMessageSubmitted(SendMessageSubmitted event, Emitter<ChatState> emit) async {
+  Future<void> _onSendMessageSubmitted(
+      SendMessageSubmitted event, Emitter<ChatState> emit) async {
     final result = await _repository.sendMessage(
       conversationId: event.conversationId,
       text: event.text,
@@ -107,7 +111,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         if (state is ChatLoaded) {
           final current = (state as ChatLoaded).messages;
           if (!current.any((m) => m.id == sentMsg.id)) {
-            emit(ChatLoaded(messages: [...current, sentMsg], conversationId: event.conversationId));
+            emit(ChatLoaded(
+                messages: [...current, sentMsg],
+                conversationId: event.conversationId));
           }
         }
       },
@@ -117,7 +123,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
   }
 
-  void _onMessageReceivedFromWs(MessageReceivedFromWs event, Emitter<ChatState> emit) {
+  void _onMessageReceivedFromWs(
+      MessageReceivedFromWs event, Emitter<ChatState> emit) {
     if (state is ChatLoaded) {
       final loaded = state as ChatLoaded;
       if (loaded.conversationId == event.message.conversationId) {

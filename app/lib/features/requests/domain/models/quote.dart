@@ -41,10 +41,13 @@ class Quote extends Equatable {
       estimatedDays: json['estimatedDays'] ?? 1,
       message: json['message'] ?? '',
       status: json['status'] ?? 'pending',
-      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt']) : null,
+      createdAt: json['createdAt'] != null
+          ? DateTime.tryParse(json['createdAt'])
+          : null,
     );
   }
 
   @override
-  List<Object?> get props => [id, requestId, artisanId, amount, estimatedDays, message, status];
+  List<Object?> get props =>
+      [id, requestId, artisanId, amount, estimatedDays, message, status];
 }

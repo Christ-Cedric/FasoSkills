@@ -8,12 +8,14 @@ import '../../domain/repositories/request_repository.dart';
 class RequestRepositoryImpl implements RequestRepository {
   final ApiClient _apiClient;
 
-  RequestRepositoryImpl({ApiClient? apiClient}) : _apiClient = apiClient ?? ApiClient();
+  RequestRepositoryImpl({ApiClient? apiClient})
+      : _apiClient = apiClient ?? ApiClient();
 
   @override
   Future<Result<List<ServiceRequest>>> getMyRequests() async {
     try {
-      final res = await _apiClient.get('/requests', queryParams: {'myOnly': 'true'});
+      final res =
+          await _apiClient.get('/requests', queryParams: {'myOnly': 'true'});
       final List list = res['data'] ?? [];
       return Success(list.map((e) => ServiceRequest.fromJson(e)).toList());
     } on Failure catch (f) {

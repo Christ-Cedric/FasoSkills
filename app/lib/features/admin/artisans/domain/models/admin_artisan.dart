@@ -116,12 +116,13 @@ class AdminArtisan extends Equatable {
         ? json['userId'] as Map<String, dynamic>
         : null;
     final cat = json['category'] is Map<String, dynamic>
-        ? AdminArtisanCategory.fromJson(json['category'] as Map<String, dynamic>)
+        ? AdminArtisanCategory.fromJson(
+            json['category'] as Map<String, dynamic>)
         : null;
     final bool verified = json['isVerified'] ?? false;
-    final String rawStatus = (json['verificationStatus'] ??
-            (verified ? 'verified' : 'pending'))
-        .toString();
+    final String rawStatus =
+        (json['verificationStatus'] ?? (verified ? 'verified' : 'pending'))
+            .toString();
 
     return AdminArtisan(
       id: (json['id'] ?? json['_id'] ?? '').toString(),
@@ -131,8 +132,10 @@ class AdminArtisan extends Equatable {
       fullName: user != null
           ? (user['fullName'] ?? '').toString()
           : (json['fullName'] ?? '').toString(),
-      email: user != null ? user['email']?.toString() : json['email']?.toString(),
-      phone: user != null ? user['phone']?.toString() : json['phone']?.toString(),
+      email:
+          user != null ? user['email']?.toString() : json['email']?.toString(),
+      phone:
+          user != null ? user['phone']?.toString() : json['phone']?.toString(),
       profilePicture: user != null
           ? user['profilePicture']?.toString()
           : json['profilePicture']?.toString(),
@@ -252,7 +255,8 @@ class AdminPagination extends Equatable {
   }
 
   @override
-  List<Object?> get props => [page, limit, total, totalPages, hasNextPage, hasPrevPage];
+  List<Object?> get props =>
+      [page, limit, total, totalPages, hasNextPage, hasPrevPage];
 }
 
 class AdminArtisansPage extends Equatable {

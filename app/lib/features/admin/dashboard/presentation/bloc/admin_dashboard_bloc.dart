@@ -117,7 +117,8 @@ class AdminDashboardError extends AdminDashboardState {
 
 // ── BLoC (F9: Cache-then-network) ───────────────────────────────────────────
 
-class AdminDashboardBloc extends Bloc<AdminDashboardEvent, AdminDashboardState> {
+class AdminDashboardBloc
+    extends Bloc<AdminDashboardEvent, AdminDashboardState> {
   final AdminDashboardRepository _dashboardRepository;
   final AdminArtisansRepository _artisansRepository;
   final AdminCategoriesRepository _categoriesRepository;
@@ -161,7 +162,8 @@ class AdminDashboardBloc extends Bloc<AdminDashboardEvent, AdminDashboardState> 
     );
     final categoriesResult = await _categoriesRepository.listCategories();
 
-    final pendingList = pendingResult.dataOrNull?.items ?? const <AdminArtisan>[];
+    final pendingList =
+        pendingResult.dataOrNull?.items ?? const <AdminArtisan>[];
     final categoryList = categoriesResult.dataOrNull ?? const <AdminCategory>[];
 
     statsResult.when(
@@ -191,8 +193,7 @@ class AdminDashboardBloc extends Bloc<AdminDashboardEvent, AdminDashboardState> 
               pendingArtisans: pendingList,
               categories: categoryList,
               isFromCache: true,
-              notificationMessage:
-                  'Mode hors-ligne : ${failure.message}',
+              notificationMessage: 'Mode hors-ligne : ${failure.message}',
               notificationIsError: true,
             ),
           );

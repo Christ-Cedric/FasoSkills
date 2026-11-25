@@ -41,7 +41,8 @@ final getIt = GetIt.instance;
 
 Future<void> setupDependencyInjection() async {
   // 1. Core Services & Storage
-  getIt.registerLazySingleton<SecureStorageService>(() => SecureStorageService());
+  getIt.registerLazySingleton<SecureStorageService>(
+      () => SecureStorageService());
   getIt.registerLazySingleton<CacheService>(() => CacheService());
   getIt.registerLazySingleton<http.Client>(() => http.Client());
 
