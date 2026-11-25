@@ -806,7 +806,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return GestureDetector(
       onTap: () {
-        context.push('/contact', extra: art);
+        context.push('/artisan-detail', extra: art);
       },
       child: Container(
         width: 175,

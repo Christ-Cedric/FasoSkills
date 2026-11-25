@@ -10,6 +10,7 @@ import '../../features/artisans/presentation/screens/home_screen.dart';
 import '../../features/artisans/presentation/screens/search_screen.dart';
 import '../../features/artisans/presentation/screens/service_details_screen.dart';
 import '../../features/artisans/presentation/screens/artisans_list_screen.dart';
+import '../../features/artisans/presentation/screens/artisan_detail_screen.dart';
 import '../../features/requests/presentation/screens/my_requests_screen.dart';
 import '../../features/requests/presentation/screens/request_quote_screen.dart';
 import '../../features/requests/presentation/screens/portfolio_screen.dart';
@@ -157,6 +158,12 @@ class AppRouter {
       GoRoute(
         path: '/portfolio',
         builder: (context, state) => const PortfolioScreen(),
+      ),
+      GoRoute(
+        path: '/artisan-detail',
+        builder: (context, state) => ArtisanDetailScreen(
+          artisanData: state.extra,
+        ),
       ),
       GoRoute(
         path: '/contact',

@@ -400,8 +400,8 @@ class _ArtisansListScreenState extends State<ArtisansListScreen> {
       ),
       child: InkWell(
         onTap: () {
-          // Open detail or contact
-          context.push('/contact', extra: artisan);
+          // Open detail of the artisan
+          context.push('/artisan-detail', extra: artisan);
         },
         borderRadius: BorderRadius.circular(22),
         child: Padding(

@@ -133,7 +133,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             final artisan = state.artisans[index];
                             return GestureDetector(
                               onTap: () {
-                                context.push('/contact', extra: artisan);
+                                context.push('/artisan-detail', extra: artisan);
                               },
                               child: Container(
                                 padding: const EdgeInsets.all(16),
