@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../../shared/widgets/floating_dock_nav_bar.dart';
 import '../bloc/artisan_list_bloc.dart';
 import '../../domain/models/artisan.dart';
 
@@ -14,7 +14,59 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _currentIndex = 0;
+  int _dockIndex = 0;
+  final ScrollController _scrollController = ScrollController();
+
+  final List<Map<String, dynamic>> _featuredServices = [
+    {
+      'title': 'Plomberie',
+      'icon': Icons.plumbing_rounded,
+      'color': const Color(0xFF2563EB),
+      'slug': 'plomberie',
+    },
+    {
+      'title': 'Électricité',
+      'icon': Icons.electrical_services_rounded,
+      'color': const Color(0xFFEAB308),
+      'slug': 'electricite',
+    },
+    {
+      'title': 'Menuiserie',
+      'icon': Icons.carpenter_rounded,
+      'color': const Color(0xFFD97706),
+      'slug': 'menuiserie',
+    },
+    {
+      'title': 'Maçonnerie',
+      'icon': Icons.foundation_rounded,
+      'color': const Color(0xFFDC2626),
+      'slug': 'maconnerie',
+    },
+    {
+      'title': 'Peinture',
+      'icon': Icons.format_paint_rounded,
+      'color': const Color(0xFF8B5CF6),
+      'slug': 'peinture',
+    },
+    {
+      'title': 'Froid & Clim',
+      'icon': Icons.ac_unit_rounded,
+      'color': const Color(0xFF06B6D4),
+      'slug': 'climatisation',
+    },
+    {
+      'title': 'Serrurerie',
+      'icon': Icons.lock_open_rounded,
+      'color': const Color(0xFF10B981),
+      'slug': 'serrurerie',
+    },
+    {
+      'title': 'Mécanique',
+      'icon': Icons.build_rounded,
+      'color': const Color(0xFF64748B),
+      'slug': 'mecanique',
+    },
+  ];
 
   @override
   void initState() {
@@ -23,413 +75,564 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final authState = context.watch<AuthBloc>().state;
-    final user = authState is Authenticated ? authState.user : null;
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      backgroundColor: const Color(0xFFF8FAFC),
+      body: SafeArea(
+        bottom: false,
+        child: Stack(
           children: [
-            Text(
-              user != null ? 'Bonjour, ${user.fullName}' : 'FasoSkills',
-              style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.textColor),
+            RefreshIndicator(
+              onRefresh: () async {
+                context.read<ArtisanListBloc>().add(const RefreshArtisans());
+              },
+              child: SingleChildScrollView(
+                controller: _scrollController,
+                padding: const EdgeInsets.only(bottom: 100),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 1. Header (Home + Notification Bell)
+                    _buildTopHeader(),
+
+                    // 2. Hero Banner Card
+                    _buildHeroBanner(),
+
+                    const SizedBox(height: 16),
+
+                    // 3. Search Corner Bar
+                    _buildSearchBar(),
+
+                    const SizedBox(height: 24),
+
+                    // 4. Featured Services Grid (4 x 2)
+                    _buildFeaturedServicesSection(),
+
+                    const SizedBox(height: 24),
+
+                    // 5. Quick Action Horizontal Bar
+                    _buildQuickActionsRow(),
+
+                    const SizedBox(height: 24),
+
+                    // 6. Recent Projects / Artisans
+                    _buildRecentProjectsSection(),
+                  ],
+                ),
+              ),
             ),
-            const Text(
-              'Trouvez un artisan qualifié près de chez vous',
-              style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+
+            // 7. Floating Glassmorphism Dock Bottom Bar
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: FloatingDockNavBar(
+                currentIndex: _dockIndex,
+                onItemSelected: (idx) {
+                  setState(() => _dockIndex = idx);
+                  if (idx == 1) context.push('/search');
+                  if (idx == 2) context.push('/portfolio');
+                  if (idx == 3) context.push('/profile');
+                },
+                onCenterFabTap: () => context.push('/request-quote'),
+              ),
             ),
           ],
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search, color: AppTheme.primaryColor),
-            onPressed: () => context.push('/search'),
+      ),
+    );
+  }
+
+  Widget _buildTopHeader() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Text(
+            'Home',
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF0F172A),
+              letterSpacing: -0.5,
+            ),
           ),
-          IconButton(
-            icon: const Icon(Icons.logout, color: AppTheme.destructiveColor),
-            tooltip: 'Déconnexion',
-            onPressed: () {
-              context.read<AuthBloc>().add(LogoutRequested());
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Stack(
+              children: [
+                IconButton(
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  icon: const Icon(Icons.notifications_none_rounded, color: Color(0xFF1E293B), size: 22),
+                  onPressed: () => context.push('/messages'),
+                ),
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: Container(
+                    width: 8,
+                    height: 8,
+                    decoration: const BoxDecoration(
+                      color: AppTheme.accentColor,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeroBanner() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20.0),
+      padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 20.0),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [
+            Color(0xFF0F172A),
+            Color(0xFF1E3A8A),
+            Color(0xFF2563EB),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF1E3A8A).withValues(alpha: 0.35),
+            blurRadius: 24,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // Logo Mark
+          Container(
+            width: 58,
+            height: 58,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.25),
+                width: 1.5,
+              ),
+            ),
+            child: const Icon(
+              Icons.handyman_rounded,
+              color: Colors.white,
+              size: 30,
+            ),
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            'FASOSKILLS',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 2.0,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'TROUVEZ VOTRE ARTISAN QUALIFIÉ',
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.7),
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 1.2,
+            ),
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            'Bienvenue sur FasoSkills',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 18,
+            offset: const Offset(0, 4),
+          ),
+        ],
+        border: Border.all(color: const Color(0xFFF1F5F9)),
+      ),
+      child: TextField(
+        readOnly: true,
+        onTap: () => context.push('/search'),
+        decoration: InputDecoration(
+          hintText: 'Rechercher un service, artisan...',
+          hintStyle: const TextStyle(fontSize: 14, color: Color(0xFF94A3B8)),
+          prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFF64748B), size: 22),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFeaturedServicesSection() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Featured Services',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF0F172A),
+              letterSpacing: -0.3,
+            ),
+          ),
+          const SizedBox(height: 16),
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: _featuredServices.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 4,
+              mainAxisSpacing: 16,
+              crossAxisSpacing: 12,
+              childAspectRatio: 0.82,
+            ),
+            itemBuilder: (context, index) {
+              final service = _featuredServices[index];
+              return GestureDetector(
+                onTap: () {
+                  context.push('/service-details', extra: service);
+                },
+                child: Column(
+                  children: [
+                    Container(
+                      width: 58,
+                      height: 58,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.03),
+                            blurRadius: 10,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: Icon(
+                          service['icon'] as IconData,
+                          color: service['color'] as Color,
+                          size: 26,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      service['title'] as String,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF334155),
+                      ),
+                    ),
+                  ],
+                ),
+              );
             },
           ),
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          context.read<ArtisanListBloc>().add(const RefreshArtisans());
-        },
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Banner / Search shortcut
-              GestureDetector(
-                onTap: () => context.push('/search'),
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    gradient: AppTheme.primaryGradient,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppTheme.primaryColor.withValues(alpha: 0.25),
-                        blurRadius: 15,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
-                            Text(
-                              'Besoin d’un dépannage rapide ?',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                            SizedBox(height: 4),
-                            Text(
-                              'Plombiers, électriciens, menuisiers vérifiés',
-                              style: TextStyle(
-                                  color: Colors.white70, fontSize: 13),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.2),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(Icons.build_circle,
-                            color: Colors.white, size: 28),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
+    );
+  }
 
-              // Categories Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Text(
-                    'Catégories de services',
-                    style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.textColor),
+  Widget _buildQuickActionsRow() {
+    final actions = [
+      {'label': 'Demande express', 'icon': Icons.bolt_rounded, 'color': Colors.amber.shade700},
+      {'label': 'Artisans vérifiés', 'icon': Icons.verified_rounded, 'color': AppTheme.primaryColor},
+      {'label': 'Devis immédiat', 'icon': Icons.receipt_long_rounded, 'color': const Color(0xFF059669)},
+      {'label': 'Mes Chantiers', 'icon': Icons.assignment_rounded, 'color': Colors.indigo.shade600},
+    ];
+
+    return SizedBox(
+      height: 40,
+      child: ListView.separated(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        scrollDirection: Axis.horizontal,
+        itemCount: actions.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 10),
+        itemBuilder: (context, index) {
+          final act = actions[index];
+          return GestureDetector(
+            onTap: () {
+              if (index == 0 || index == 2) context.push('/request-quote');
+              if (index == 3) context.push('/requests');
+              if (index == 1) context.push('/search');
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.02),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
-              SizedBox(
-                height: 44,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: [
-                    _buildCategoryChip('Tous', Icons.dashboard,
-                        isSelected: true),
-                    _buildCategoryChip('Plomberie', Icons.plumbing),
-                    _buildCategoryChip(
-                        'Électricité', Icons.electrical_services),
-                    _buildCategoryChip('Menuiserie', Icons.carpenter),
-                    _buildCategoryChip('Maçonnerie', Icons.foundation),
-                    _buildCategoryChip('Peinture', Icons.format_paint),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Artisans Section with F7 states: loading, empty, error with retry, loaded
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Row(
                 children: [
-                  const Text(
-                    'Artisans disponibles',
-                    style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.textColor),
+                  Icon(act['icon'] as IconData, size: 16, color: act['color'] as Color),
+                  const SizedBox(width: 6),
+                  Text(
+                    act['label'] as String,
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
-              BlocBuilder<ArtisanListBloc, ArtisanListState>(
-                builder: (context, state) {
-                  // Loading State
-                  if (state is ArtisanListLoading) {
-                    return const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 40.0),
-                      child: Center(
-                          child: CircularProgressIndicator(
-                              color: AppTheme.primaryColor)),
-                    );
-                  }
+            ),
+          );
+        },
+      ),
+    );
+  }
 
-                  // Empty State
-                  if (state is ArtisanListEmpty) {
-                    return Container(
-                      padding: const EdgeInsets.all(32),
-                      alignment: Alignment.center,
-                      child: Column(
-                        children: [
-                          Icon(Icons.person_search_outlined,
-                              size: 64, color: Colors.grey.shade400),
-                          const SizedBox(height: 12),
-                          Text(
-                            state.message,
-                            style: const TextStyle(
-                                fontSize: 16, color: AppTheme.textSecondary),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-
-                  // Error State with Retry Button (Exigence F7)
-                  if (state is ArtisanListError) {
-                    return Container(
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: Colors.red.shade50,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.red.shade200),
-                      ),
-                      child: Column(
-                        children: [
-                          const Icon(Icons.error_outline,
-                              color: AppTheme.destructiveColor, size: 40),
-                          const SizedBox(height: 8),
-                          Text(
-                            state.message,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                                color: AppTheme.destructiveColor,
-                                fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 12),
-                          ElevatedButton.icon(
-                            onPressed: () {
-                              context
-                                  .read<ArtisanListBloc>()
-                                  .add(const LoadArtisans());
-                            },
-                            icon: const Icon(Icons.refresh),
-                            label: const Text('Réessayer'),
-                            style: ElevatedButton.styleFrom(
-                                backgroundColor: AppTheme.primaryColor),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-
-                  // Loaded State (Cache-then-network aware - Exigence F9)
-                  if (state is ArtisanListLoaded) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (state.isFromCache)
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 8.0),
-                            child: Row(
-                              children: const [
-                                Icon(Icons.offline_pin,
-                                    size: 14, color: AppTheme.accentColor),
-                                SizedBox(width: 4),
-                                Text(
-                                  'Données en cache hors-ligne',
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      color: AppTheme.accentColor),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ListView.separated(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: state.artisans.length,
-                          separatorBuilder: (_, __) =>
-                              const SizedBox(height: 12),
-                          itemBuilder: (context, index) {
-                            final artisan = state.artisans[index];
-                            return _buildArtisanCard(context, artisan);
-                          },
-                        ),
-                      ],
-                    );
-                  }
-
-                  return const SizedBox();
-                },
+  Widget _buildRecentProjectsSection() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Recent Projects',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF0F172A),
+                  letterSpacing: -0.3,
+                ),
+              ),
+              Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.chevron_left_rounded, size: 24, color: Color(0xFF64748B)),
+                    onPressed: () {
+                      _scrollController.animateTo(
+                        0,
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeOut,
+                      );
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.chevron_right_rounded, size: 24, color: Color(0xFF64748B)),
+                    onPressed: () {
+                      _scrollController.animateTo(
+                        200,
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeOut,
+                      );
+                    },
+                  ),
+                ],
               ),
             ],
           ),
-        ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push('/request-quote'),
-        backgroundColor: AppTheme.primaryColor,
-        icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text('Créer une demande',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-      ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
-        onDestinationSelected: (idx) {
-          setState(() => _currentIndex = idx);
-          if (idx == 1) context.push('/search');
-          if (idx == 2) context.push('/requests');
-          if (idx == 3) context.push('/messages');
-        },
-        destinations: const [
-          NavigationDestination(
-              icon: Icon(Icons.home_outlined),
-              selectedIcon: Icon(Icons.home),
-              label: 'Accueil'),
-          NavigationDestination(icon: Icon(Icons.search), label: 'Recherche'),
-          NavigationDestination(
-              icon: Icon(Icons.assignment_outlined),
-              selectedIcon: Icon(Icons.assignment),
-              label: 'Demandes'),
-          NavigationDestination(
-              icon: Icon(Icons.chat_bubble_outline),
-              selectedIcon: Icon(Icons.chat_bubble),
-              label: 'Messages'),
+          const SizedBox(height: 12),
+          BlocBuilder<ArtisanListBloc, ArtisanListState>(
+            builder: (context, state) {
+              if (state is ArtisanListLoading) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(24.0),
+                    child: CircularProgressIndicator(color: AppTheme.primaryColor),
+                  ),
+                );
+              }
+
+              if (state is ArtisanListLoaded && state.artisans.isNotEmpty) {
+                return SizedBox(
+                  height: 190,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: state.artisans.length,
+                    separatorBuilder: (_, __) => const SizedBox(width: 14),
+                    itemBuilder: (context, index) {
+                      final artisan = state.artisans[index];
+                      return _buildRecentProjectCard(artisan);
+                    },
+                  ),
+                );
+              }
+
+              // Fallback cards if empty
+              return _buildFallbackProjects();
+            },
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildCategoryChip(String label, IconData icon,
-      {bool isSelected = false}) {
-    return Container(
-      margin: const EdgeInsets.only(right: 8),
-      child: FilterChip(
-        selected: isSelected,
-        avatar: Icon(icon,
-            size: 16, color: isSelected ? Colors.white : AppTheme.primaryColor),
-        label: Text(label),
-        labelStyle: TextStyle(
-          color: isSelected ? Colors.white : AppTheme.textColor,
-          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+  Widget _buildRecentProjectCard(Artisan artisan) {
+    return GestureDetector(
+      onTap: () {
+        context.push('/contact', extra: artisan);
+      },
+      child: Container(
+        width: 240,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color(0xFFE2E8F0)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 14,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
-        backgroundColor: Colors.white,
-        selectedColor: AppTheme.primaryColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        onSelected: (_) {
-          context
-              .read<ArtisanListBloc>()
-              .add(LoadArtisans(categoryId: label == 'Tous' ? null : label));
-        },
-      ),
-    );
-  }
-
-  Widget _buildArtisanCard(BuildContext context, Artisan artisan) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: AppTheme.borderColor),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CircleAvatar(
-              radius: 28,
-              backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
-              child: Text(
-                artisan.fullName.isNotEmpty
-                    ? artisan.fullName[0].toUpperCase()
-                    : 'A',
-                style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.primaryColor),
+            Container(
+              height: 100,
+              decoration: const BoxDecoration(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                gradient: LinearGradient(
+                  colors: [Color(0xFF1E3A8A), Color(0xFF3B82F6)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              child: Stack(
+                children: [
+                  Center(
+                    child: Icon(
+                      Icons.architecture_rounded,
+                      color: Colors.white.withValues(alpha: 0.3),
+                      size: 48,
+                    ),
+                  ),
+                  Positioned(
+                    top: 10,
+                    right: 10,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.star, size: 12, color: Colors.amber),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${artisan.rating}',
+                            style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(width: 14),
-            Expanded(
+            Padding(
+              padding: const EdgeInsets.all(12.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      Flexible(
-                        child: Text(
-                          artisan.fullName,
-                          style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: AppTheme.textColor),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      if (artisan.isVerified) ...[
-                        const SizedBox(width: 4),
-                        const Icon(Icons.verified,
-                            size: 16, color: AppTheme.primaryColor),
-                      ],
-                    ],
+                  Text(
+                    artisan.fullName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF0F172A)),
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    artisan.specialty.isNotEmpty
-                        ? artisan.specialty
-                        : (artisan.category?.name ?? 'Artisan'),
-                    style: const TextStyle(
-                        fontSize: 14,
-                        color: AppTheme.primaryColor,
-                        fontWeight: FontWeight.w500),
-                  ),
-                  const SizedBox(height: 6),
-                  Row(
-                    children: [
-                      const Icon(Icons.star,
-                          size: 16, color: AppTheme.accentColor),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${artisan.rating} (${artisan.reviewsCount} avis)',
-                        style: const TextStyle(
-                            fontSize: 12, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(width: 12),
-                      const Icon(Icons.location_on_outlined,
-                          size: 16, color: AppTheme.textMuted),
-                      const SizedBox(width: 2),
-                      Text(
-                        artisan.city,
-                        style: const TextStyle(
-                            fontSize: 12, color: AppTheme.textSecondary),
-                      ),
-                    ],
+                    '${artisan.specialty} • ${artisan.city}',
+                    style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
                   ),
                 ],
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildFallbackProjects() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        children: const [
+          Icon(Icons.info_outline, color: AppTheme.primaryColor),
+          SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Aucun artisan disponible pour le moment. Créez une demande pour être contacté.',
+              style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+            ),
+          ),
+        ],
       ),
     );
   }

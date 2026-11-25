@@ -5,10 +5,13 @@ import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/auth/presentation/screens/splash_screen.dart';
+import '../../features/auth/presentation/screens/profile_screen.dart';
 import '../../features/artisans/presentation/screens/home_screen.dart';
 import '../../features/artisans/presentation/screens/search_screen.dart';
+import '../../features/artisans/presentation/screens/service_details_screen.dart';
 import '../../features/requests/presentation/screens/my_requests_screen.dart';
 import '../../features/requests/presentation/screens/request_quote_screen.dart';
+import '../../features/requests/presentation/screens/portfolio_screen.dart';
 import '../../features/chat/presentation/screens/messages_screen.dart';
 import '../../features/admin/dashboard/presentation/screens/admin_dashboard_screen.dart';
 import '../../features/admin/artisans/presentation/screens/admin_artisans_screen.dart';
@@ -16,6 +19,7 @@ import '../../features/admin/artisans/presentation/screens/admin_artisan_detail_
 import '../../features/admin/categories/presentation/screens/admin_categories_screen.dart';
 import '../../features/admin/moderation/presentation/screens/admin_moderation_screen.dart';
 import '../../features/admin/profile/presentation/screens/admin_profile_screen.dart';
+import '../../features/chat/presentation/screens/contact_screen.dart';
 
 class AppRouter {
   final AuthBloc authBloc;
@@ -125,6 +129,26 @@ class AppRouter {
       GoRoute(
         path: '/admin/profile',
         builder: (context, state) => const AdminProfileScreen(),
+      ),
+      GoRoute(
+        path: '/service-details',
+        builder: (context, state) => ServiceDetailsScreen(
+          serviceData: state.extra as Map<String, dynamic>?,
+        ),
+      ),
+      GoRoute(
+        path: '/portfolio',
+        builder: (context, state) => const PortfolioScreen(),
+      ),
+      GoRoute(
+        path: '/contact',
+        builder: (context, state) => ContactScreen(
+          artisan: state.extra,
+        ),
+      ),
+      GoRoute(
+        path: '/profile',
+        builder: (context, state) => const ProfileScreen(),
       ),
     ],
   );
