@@ -1,88 +1,125 @@
-# PLAN DE RÉPARTITION DES TÂCHES — PROJET FASOSKILLS (T18)
-## Analyse du Problème et Solution de Rééquilibrage
+# PLAN DE RÉPARTITION OFFICIEL DES TÂCHES — PROJET FASOSKILLS (T18)
+## Conforme aux Directives de l'Équipe et aux Exigences du Professeur
 **Cours :** Advanced Mobile Development – Year 3 (BIT)  
 **Enseignant référent :** Dr Lebian Wilfried NIKIEMA  
 **Équipe :** Cédric, Aman, Prisca, Grace  
 
 ---
 
-## 1. Pourquoi la situation actuelle pose un problème critique ?
+## 1. Nouvelle Répartition Validée de l'Équipe
 
-La répartition initiale :
-- **Cédric** : Frontend Client + Frontend Agent (Artisan)
-- **Aman** : Frontend Administrateur + Backend *uniquement* Administrateur
+La répartition des responsabilités repose désormais sur la structure suivante :
 
-### 🚨 Les 3 Anomalies Majeures :
-1. **Le cœur de l'application n'a PAS de Backend :**  
-   Si Aman ne code que le Backend Administrateur (catégories, validation de profil), **qui code le Backend des Clients et des Artisans** ?  
-   Les fonctionnalités centrales du sujet T18 :
-   - Recherche et géolocalisation des artisans,
-   - Création et publication d'une demande de travaux (`jobRequests`),
-   - Soumission de devis chiffrés par les artisans (`quotes`),
-   - Acceptation d'un seul devis avec verrouillage atomique,
-   - Avis et notation des artisans après intervention (`reviews`),
-   - Messagerie en direct (chat / WebSocket).  
-   Sans ces endpoints, l'application mobile de Cédric reste une coquille vide avec des données fictives !
-
-2. **Le piège de la note individuelle de Dr NIKIEMA (Facteur individuel = 0) :**  
-   Dans son *Project Book* (pages 3 et 16), l'enseignant a écrit noir sur blanc :  
-   > *« Roles are a way to share responsibility, not to split knowledge. **Every member must write code in both the API and the app**, and must be able to explain the whole project during the defence. A student who contributed no code, or who cannot explain any part of the project, receives an individual factor close to 0. »*  
-   - Si Cédric ne présente **aucun code sur l'API**, le jury va le sanctionner lors des questions backend.
-   - Si Aman ne présente **aucun code sur l'application mobile Client/Artisan**, il ne pourra pas répondre aux questions d'architecture Flutter.
-
-3. **Déséquilibre massif de charge :**  
-   Cédric a abattu plus de 80% du travail d'interface mobile (plus de 10 écrans Flutter complets), alors que la partie administration d'Aman ne représente que 15% à 20% du système.
+| Membre | Rôle & Périmètre Attribué | Technologies |
+| :--- | :--- | :--- |
+| **CÉDRIC** | **Frontend Client & Frontend Agent (Artisan)** | Flutter / Dart (Mobile) |
+| **AMAN** | **Frontend Administrateur & Backend UNIQUEMENT Administrateur** | Flutter/Web & Node.js/Express (Admin) |
+| **PRISCA** | **Backend Client & Backend Agent (Artisan)** + **Communication avec le Backend Administrateur** | Node.js / Express 5 / MongoDB / WebSockets |
+| **GRACE** | **Documentation Complète & Livrables Académiques (M1, M4, Slides)** | LaTeX / Markdown / PDF / Vidéo Démo |
 
 ---
 
-## 2. La Solution de Rééquilibrage Immédiate
+## 2. Détail des Tâches & Livrables Concrets par Membre
 
-Pour garantir la complétude du projet et la note maximale à chaque membre :
-
-### 1. AMAN prend en charge le Backend Métier Complet (en plus de l'Admin) :
-Aman ne peut pas s'arrêter au Backend Admin. En tant que lead Backend, il prend la responsabilité de :
-- L'API des Demandes d'intervention (`api/src/modules/requests/`).
-- L'API des Devis d'artisans (`api/src/modules/quotes/`).
-- L'API des Notations / Avis clients (`api/src/modules/reviews/`).
-- La mise en œuvre des règles de sécurité serveur obligatoires (Contrôle BOLA, acceptation atomique d'un seul devis).
-- La suite de tests d'intégration API (`supertest`).
-
-### 2. CÉDRIC prend la responsabilité du Backend Temps Réel (WebSockets) :
-Pour que Cédric respecte la règle obligatoire de Dr Nikiema (*« code in both API and app »*) sans surcharger son travail :
-- Cédric prend la paternité du **Serveur WebSocket et de la messagerie (`ws-server.ts` et `api/src/modules/chat/`)**.
-- Cela correspond directement à l'écran de chat en direct qu'il a déjà développé sur Flutter.
-- C'est la **Fonctionnalité Avancée** du sujet, valorisée à **5 points au barème**.
-
-### 3. PRISCA & GRACE (si présentes) complètent le dispositif :
-- **Prisca (Quality Lead) :** Tests d'intégration API pour les cas limites, vérification des 4 états UI sur mobile, pilotage du pipeline CI/CD GitHub Actions.
-- **Grace (Product Lead) :** Jeu de données pour le seed (`seed.ts`), rédaction du Design Document M1 (`docs/design.pdf`), du Rapport Final M4 (`docs/report.pdf`, 10–15 p.) et des slides de soutenance.
-
----
-
-## 3. Tableau Récapitulatif Rééquilibré
-
-| Membre | Rôle Officiel | Partie Frontend (Flutter / Web) | Partie Backend (API Node.js / Mongo) | Livrables Personnels à Défendre |
-| :--- | :--- | :--- | :--- | :--- |
-| **CÉDRIC** | **App Lead & UX Specialist** | **Tout le Frontend Client & Artisan** : Accueil, carrousel, recherche, profils, nouvelle demande, chat, notifications. | **Backend Temps Réel WebSockets & Chat** : Serveur WS, événements `message:received` et `quote:received`. | Intégration BLoC (optimistic update), architecture Flutter, tests BLoC, build Release APK. |
-| **AMAN** | **API Lead & Security Lead** | **Frontend Administration** : Dashboard web/mobile et modération des artisans. | **Tout le Backend Métier & Sécurité** : Demandes, Devis, Avis, Admin, règles BOLA, hachage bcrypt, JWT. | Modèle MongoDB, sécurité OWASP, tests d'intégration API Supertest, déploiement Cloud. |
-| **PRISCA** | **Quality Lead & Métier** | **Recette UI Mobile** : Contrôle des 4 états UI (loading, empty, error, loaded) sur mobile réel. | **Validation Règles Métier** : Tests des cas limites API (rejet 2nd devis, BOLA). | Recette fonctionnelle de bout en bout, pipeline GitHub Actions vert. |
-| **GRACE** | **Product & Release Lead** | **Supports Démo** : Scénario live 2 rôles (Client + Artisan), vidéo démo 3 min. | **Dataset de Test** : Données réalistes pour le seed burkinabè (`seed.ts`). | Design Doc M1 (`docs/design.pdf`), Rapport M4 (`docs/report.pdf`), Slides soutenance. |
+### 👤 1. CÉDRIC — *Frontend Client & Frontend Agent (Artisan)*
+- **Espace Client :**
+  - Écran d'accueil FasoSkills (carrousel hero 3 cartes, 4 services mis en avant, actions rapides).
+  - Remplacement de « Recent Projects » par « Artisans disponibles » avec notes et localisation.
+  - Page dédiée de listing des professionnels avec barre de recherche et filtres par corps de métier.
+  - Page profil artisan détaillée (avis vérifiés, réalisations/portfolio, tarifs indicatifs, boutons d'action rapide).
+  - Formulaire « Nouvelle demande » (sélection de métier, date, créneau horaire, budget indicatif, photos).
+  - Onglet « Discussions » avec liste des conversations et vue de chat en direct.
+  - Écran dédié de notifications système et alertes chantiers.
+- **Espace Agent (Artisan) :**
+  - Consultation des demandes d'intervention disponibles dans sa zone géographique.
+  - Interface de soumission et envoi d'un devis chiffré.
+  - Suivi et mise à jour des statuts de chantier (`accepted` ➔ `in_progress` ➔ `completed`).
+- **Architecture Flutter & Qualité :**
+  - Architecture Clean Architecture Feature-First (`domain`, `data`, `presentation`).
+  - Gestion d'état BLoC : `RequestBloc` (avec optimistic update et rollback), `ArtisanListBloc` (avec debounce 300ms).
+  - Gestion des 4 états UI obligatoires : Chargement, Vide, Erreur avec bouton réessai, Données chargées.
+  - Navigation déclarative sécurisée avec `go_router` et Route Guards d'authentification.
+  - Tests unitaires et tests de BLoC Flutter (`app/test/bloc_test.dart`).
+  - Génération de l'APK Release (`v1.0.0`) testé sur smartphone réel.
 
 ---
 
-## 4. Répartition Chronométrée pour la Soutenance (25 Minutes)
+### 👤 2. AMAN — *Frontend Administrateur & Backend UNIQUEMENT Administrateur*
+- **Frontend Administrateur :**
+  - Dashboard web/mobile pour la supervision globale du système FasoSkills.
+  - Interface de modération des utilisateurs (clients et artisans).
+  - Interface de gestion du catalogue des catégories et corps de métier.
+- **Backend Administrateur :**
+  - Routes et contrôleurs d'administration : `/api/admin/users`, `/api/admin/categories`, `/api/admin/artisans/:id/verify`.
+  - Workflow d'attribution et révocation du badge « Artisan Vérifié FasoSkills ».
+  - Activation, suspension ou bannissement des comptes frauduleux.
+  - Sécurisation stricte de l'accès aux endpoints admin via middleware RBAC (`requireRole('admin')`).
+- **Communication avec le Backend Métier :**
+  - Mise à disposition des statuts de vérification des artisans pour alimenter les listes publiques.
 
-- **00:00 – 03:00 (3 min) : Setup**  
-  Cédric connecte le smartphone physique au vidéoprojecteur ; Aman vérifie la connexion à l'API déployée.
-- **03:00 – 10:00 (7 min) : Présentation Slides (Chaque membre parle)**  
-  - *Grace :* Contexte local T18 au Burkina Faso, personas et objectifs.
-  - *Aman :* Architecture API en couches, modèle MongoDB, sécurité OWASP et BOLA.
-  - *Cédric :* Clean Architecture Flutter, gestion d'état BLoC, UX Client/Artisan.
-  - *Prisca :* Stratégie de tests, résilience réseau (optimistic rollback), CI/CD.
-- **10:00 – 17:00 (7 min) : Démonstration en Direct (Multi-rôles)**  
-  1. Cédric (Client) publie une nouvelle demande de plomberie avec photos sur son iPhone.
-  2. Aman (Artisan) reçoit la demande et propose un devis chiffré.
-  3. Cédric reçoit l'alerte en direct via WebSocket et accepte le devis.
-  4. Aman montre le tableau de bord Admin pour valider le badge de l'artisan.
-- **17:00 – 25:00 (8 min) : Questions Individuelles du Jury**  
-  Réponses individuelles ciblées posées par Dr NIKIEMA.
+---
+
+### 👤 3. PRISCA — *Backend Client & Backend Agent (Artisan) + Passerelle Admin*
+- **Backend Métier Client & Agent :**
+  - **Gestion des demandes (`jobRequests`) :** Création de demande avec photos, critères d'urgence et adresse d'intervention.
+  - **Gestion des devis (`quotes`) :** Envoi d'un devis par un artisan, consultation des devis par le demandeur.
+  - **Gestion des avis (`reviews`) :** Dépôt de notation et commentaire avec calcul automatique de la note moyenne de l'artisan.
+  - **Recherche & Filtres :** Requêtes MongoDB avec filtres de catégorie, ville et quartier.
+- **Règles Serveur Strictes du Sujet T18 :**
+  - **Contrôle d'accès BOLA :** Seul le client auteur d'une demande a le droit de voir les devis qui lui sont soumis.
+  - **Atomicité d'acceptation :** Un seul devis accepté par demande (verrouillage immédiat pour éviter toute collision concurrente).
+  - **Avis conditionnés :** Dépôt d'avis vérifié autorisé uniquement pour une intervention au statut `completed`.
+- **Communication avec le Backend Administrateur :**
+  - Consommation des statuts d'artisans validés par Aman pour afficher le badge certifié côté Client.
+  - Remontée des métriques globales d'activité (nombre d'interventions, chiffre d'affaires moyen) vers l'espace Admin.
+- **WebSockets & Tests API :**
+  - Implémentation du serveur WebSocket (`ws-server.ts`) pour les notifications en temps réel (`quote:received`, `message:received`).
+  - Rédaction de la suite de tests d'intégration API (`supertest`) couvrant l'authentification, les permissions et les règles BOLA.
+
+---
+
+### 👤 4. GRACE — *Documentation Complète & Livrables Académiques*
+- **Design Document M1 (`docs/design.pdf`) :**
+  - Document de 6 à 10 pages complet : Problème, 10 à 20 User Stories prioritaires (MoSCoW), Modèle MongoDB (décisions embed vs ref justifiées), Table des endpoints REST, Wireframes, Diagrammes d'architecture, Matrice des risques techniques.
+- **Rapport Final d'Ingénierie M4 (`docs/report.pdf`) :**
+  - Document de 10 à 15 pages rédigé pour un ingénieur reprenant le projet :
+    1. Présentation du produit avec captures d'écran.
+    2. Architecture API et App (justification des choix par rapport au lab).
+    3. Tableau de sécurité et correspondance avec le Top 10 OWASP API.
+    4. Analyse détaillée de 2 BLoCs (événements, états, transformers).
+    5. Stratégie de tests automatisés.
+    6. Fonctionnalité avancée (WebSockets temps réel).
+    7. Les 3 décisions techniques qu'on prendrait différemment aujourd'hui.
+    8. **Paragraphe individuel rédigé par chaque membre (Cédric, Aman, Prisca, Grace)** avec liens vers leurs PRs.
+- **Supports de Soutenance & Release :**
+  - Conception du diaporama officiel pour la présentation orale de 25 minutes (`docs/slides.pdf`).
+  - Élaboration du jeu de données de test burkinabè réaliste pour le seed (`seed.ts`).
+  - Coordination et montage de la vidéo de démonstration de 3 minutes.
+  - Audit de l'historique Git (`git log -p`) pour garantir l'absence totale de secrets commis.
+
+---
+
+## 3. Matrice de Répartition Face au Barème de Dr NIKIEMA (100 Points)
+
+| Critère d'Évaluation | Points | Ce qui est Livré | Responsables Directs |
+| :--- | :---: | :--- | :--- |
+| **Sécurité API** | 15 pts | JWT rotation, hash bcrypt, contrôle BOLA strict, RBAC admin/client/artisan, rate limiting. | **Prisca & Aman** |
+| **Architecture App Flutter** | 15 pts | Clean Architecture, injection `get_it`, contrats de repositories, route guards `go_router`. | **Cédric** |
+| **Gestion d'état BLoC** | 10 pts | `RequestBloc` (optimistic update & rollback), `ArtisanListBloc` (debounce 300ms), 4 états UI. | **Cédric** |
+| **Tests & Pipeline CI/CD** | 10 pts | Tests d'intégration API (`supertest`), tests de BLoC (`bloc_test`), workflow GitHub Actions vert. | **Prisca & Cédric** |
+| **Produit & UX** | 10 pts | Complétude des flux T18, design pro, gestion du mode hors-ligne (*Cache-then-network*). | **Cédric & Grace** |
+| **Fonctionnalité Avancée** | 5 pts | WebSockets bidirectionnels temps réel (alertes devis et chat direct). | **Prisca & Cédric** |
+| **Documentation & Rapport** | 10 pts | Design Doc M1, README (&lt; 10 min), Rapport final M4 avec paragraphes individuels. | **Grace** |
+| **Soutenance (25 minutes)** | 10 pts | 3 min setup + 7 min slides (tous parlent) + 7 min démo live multi-rôles + 8 min questions jury. | **Toute l'équipe** |
+| **Bonus (+5 max)** | +5 pts | Déploiement Web, qualité UX exceptionnelle et tests de bout en bout supplémentaires. | **Toute l'équipe** |
+
+---
+
+## 4. Déroulement Chronométré de la Soutenance (25 Minutes)
+
+| Timing | Étape | Intervenants | Contenu Présenté |
+| :---: | :--- | :--- | :--- |
+| **00:00 – 03:00** | Installation & Setup | Cédric & Prisca | Connexion du smartphone au vidéoprojecteur, vérification de l'API déployée et des données de seed. |
+| **03:00 – 10:00** | Présentation Slides (7 min) | **Les 4 membres** (~1m45 chacun) | • **Grace :** Problématique locale T18 au Burkina Faso, personas et objectifs du produit.<br>• **Aman :** Module Administrateur, modération des artisans et sécurité d'accès RBAC.<br>• **Prisca :** Backend Client/Agent, modèle MongoDB, sécurité OWASP & BOLA.<br>• **Cédric :** Clean Architecture Flutter, gestion d'état BLoC, UX des parcours Client & Artisan. |
+| **10:00 – 17:00** | Démo Live Multi-Rôles (7 min) | Cédric (Client) & Prisca (Artisan) & Aman (Admin) | **Scénario réaliste en direct :**<br>1. Cédric publie une « Nouvelle demande » de plomberie sur son iPhone.<br>2. Prisca reçoit la demande via WebSocket et envoie un devis chiffré.<br>3. Cédric reçoit l'alerte en direct et accepte le devis.<br>4. Aman présente le tableau de bord Admin pour valider le badge de l'artisan. |
+| **17:00 – 25:00** | Questions du Jury (8 min) | Réponses individuelles ciblées | Questions techniques de Dr NIKIEMA posées individuellement à chaque étudiant sur son code. |
