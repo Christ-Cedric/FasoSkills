@@ -10,6 +10,8 @@ import requestRoutes from './modules/requests/request.routes.js';
 import quoteRoutes from './modules/quotes/quote.routes.js';
 import reviewRoutes from './modules/reviews/review.routes.js';
 import chatRoutes from './modules/chat/chat.routes.js';
+import reportRoutes from './modules/reports/report.routes.js';
+import adminRoutes from './modules/admin/admin.routes.js';
 
 import { errorHandler } from './core/middlewares/error-handler.js';
 import { NotFoundError } from './core/errors/app-error.js';
@@ -52,6 +54,8 @@ export function createApp(): Application {
   app.use('/api/quotes', quoteRoutes);
   app.use('/api/reviews', reviewRoutes);
   app.use('/api/chat', chatRoutes);
+  app.use('/api/reports', reportRoutes);
+  app.use('/api/admin', adminRoutes);
 
   // 404 handler for undefined routes
   app.use((_req, _res, next) => {

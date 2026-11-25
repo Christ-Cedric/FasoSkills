@@ -1,23 +1,31 @@
+import mongoose from 'mongoose';
 import { ArtisanProfile } from './artisan.model.js';
 import { User } from '../auth/auth.model.js';
-import { NotFoundError, ForbiddenError } from '../../core/errors/app-error.js';
+import { NotFoundError, ForbiddenError, ConflictError } from '../../core/errors/app-error.js';
 import { formatPaginatedResult, type PaginatedResult } from '../../core/utils/pagination.js';
-import type { ArtisanQuery, UpdateArtisanProfileInput } from './artisan.schema.js';
+import { wsManager } from '../../core/websocket/ws-server.js';
+import type {
+  AdminArtisansQuery,
+  ArtisanQuery,
+  UpdateArtisanProfileInput,
+} from './artisan.schema.js';
+
+function escapeRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 
 export class ArtisanService {
   public async list(query: ArtisanQuery): Promise<PaginatedResult<any>> {
     const { page, limit, search, city, categoryId, minRating } = query;
     const filter: Record<string, any> = {};
 
-    if (city) filter.city = new RegExp(city, 'i');
+    if (city) filter.city = new RegExp(escapeRegex(city), 'i');
     if (categoryId) filter.category = categoryId;
     if (minRating) filter.rating = { $gte: minRating };
 
     if (search) {
-      filter.$or = [
-        { specialty: new RegExp(search, 'i') },
-        { bio: new RegExp(search, 'i') },
-      ];
+      const regex = new RegExp(escapeRegex(search), 'i');
+      filter.$or = [{ specialty: regex }, { bio: regex }];
     }
 
     const skip = (page - 1) * limit;
@@ -38,13 +46,18 @@ export class ArtisanService {
 
   public async getById(id: string) {
     const profile = await ArtisanProfile.findById(id)
-      .populate('userId', 'fullName email phone profilePicture isVerified')
+      .populate('userId', 'fullName email phone profilePicture isVerified createdAt')
       .populate('category', 'name slug icon');
     if (!profile) throw new NotFoundError('Artisan profile');
     return profile;
   }
 
-  public async updateProfile(profileId: string, userId: string, userRole: string, data: UpdateArtisanProfileInput) {
+  public async updateProfile(
+    profileId: string,
+    userId: string,
+    userRole: string,
+    data: UpdateArtisanProfileInput
+  ) {
     const profile = await ArtisanProfile.findById(profileId);
     if (!profile) throw new NotFoundError('Artisan profile');
 
@@ -59,6 +72,14 @@ export class ArtisanService {
     if (data.experienceYears !== undefined) profile.experienceYears = data.experienceYears;
     if (data.bio !== undefined) profile.bio = data.bio;
     if (data.availability !== undefined) profile.availability = data.availability;
+    if (data.documents !== undefined) {
+      profile.documents = data.documents.map((doc) => ({
+        name: doc.name,
+        type: doc.type,
+        url: doc.url,
+        uploadedAt: new Date(),
+      }));
+    }
 
     if (profile.specialty && profile.city && profile.category) {
       profile.profileStatus = 'complete';
@@ -71,14 +92,106 @@ export class ArtisanService {
     ]);
   }
 
-  public async verifyArtisan(profileId: string, isAdmin: boolean) {
-    if (!isAdmin) throw new ForbiddenError('Only administrators can verify artisans');
+  public async verifyArtisan(profileId: string, adminUserId: string) {
     const profile = await ArtisanProfile.findById(profileId);
     if (!profile) throw new NotFoundError('Artisan profile');
+
+    if (profile.isVerified || profile.verificationStatus === 'verified') {
+      throw new ConflictError('Artisan is already verified');
+    }
+
     profile.isVerified = true;
+    profile.verificationStatus = 'verified';
+    profile.rejectionReason = undefined;
+    profile.verifiedAt = new Date();
+    profile.verifiedBy = new mongoose.Types.ObjectId(adminUserId);
+    profile.rejectedAt = undefined;
+    profile.rejectedBy = undefined;
     await profile.save();
+
     await User.findByIdAndUpdate(profile.userId, { isVerified: true });
-    return profile;
+
+    const populated = await profile.populate([
+      { path: 'userId', select: 'fullName email phone profilePicture isVerified createdAt' },
+      { path: 'category', select: 'name slug icon' },
+    ]);
+
+    wsManager.broadcastToUser(profile.userId.toString(), 'artisan:verified', {
+      artisanProfileId: profile._id.toString(),
+      isVerified: true,
+    });
+
+    return populated;
+  }
+
+  public async rejectArtisan(profileId: string, adminUserId: string, reason: string) {
+    const profile = await ArtisanProfile.findById(profileId);
+    if (!profile) throw new NotFoundError('Artisan profile');
+
+    profile.isVerified = false;
+    profile.verificationStatus = 'rejected';
+    profile.rejectionReason = reason;
+    profile.rejectedAt = new Date();
+    profile.rejectedBy = new mongoose.Types.ObjectId(adminUserId);
+    await profile.save();
+
+    await User.findByIdAndUpdate(profile.userId, { isVerified: false });
+
+    const populated = await profile.populate([
+      { path: 'userId', select: 'fullName email phone profilePicture isVerified createdAt' },
+      { path: 'category', select: 'name slug icon' },
+    ]);
+
+    wsManager.broadcastToUser(profile.userId.toString(), 'artisan:rejected', {
+      artisanProfileId: profile._id.toString(),
+      reason,
+    });
+
+    return populated;
+  }
+
+  public async adminList(query: AdminArtisansQuery): Promise<PaginatedResult<any>> {
+    const { status, q, page, limit } = query;
+    const filter: Record<string, any> = {};
+
+    if (status === 'pending') {
+      filter.isVerified = false;
+      filter.verificationStatus = { $ne: 'rejected' };
+    } else if (status === 'verified') {
+      filter.isVerified = true;
+    }
+
+    if (q) {
+      const regex = new RegExp(escapeRegex(q), 'i');
+      const matchingUsers = await User.find({
+        $or: [{ fullName: regex }, { email: regex }, { phone: regex }],
+      })
+        .select('_id')
+        .lean();
+      const userIds = matchingUsers.map((u) => u._id);
+
+      filter.$or = [
+        { specialty: regex },
+        { bio: regex },
+        { city: regex },
+        ...(userIds.length > 0 ? [{ userId: { $in: userIds } }] : []),
+      ];
+    }
+
+    const skip = (page - 1) * limit;
+
+    const [profiles, total] = await Promise.all([
+      ArtisanProfile.find(filter)
+        .populate('userId', 'fullName email phone profilePicture isVerified createdAt')
+        .populate('category', 'name slug icon')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      ArtisanProfile.countDocuments(filter),
+    ]);
+
+    return formatPaginatedResult(profiles, total, page, limit);
   }
 }
 

@@ -36,8 +36,39 @@ export class ArtisanController {
 
   public async verify(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const profile = await artisanService.verifyArtisan(String(req.params.id), req.user!.role === 'admin');
+      const profile = await artisanService.verifyArtisan(String(req.params.id), req.user!.id);
       res.status(200).json({ data: profile, message: 'Artisan verified' });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async reject(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const profile = await artisanService.rejectArtisan(
+        String(req.params.id),
+        req.user!.id,
+        req.body.reason
+      );
+      res.status(200).json({ data: profile, message: 'Artisan verification rejected' });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async adminList(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const result = await artisanService.adminList(req.query as any);
+      res.status(200).json(result);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async adminGetById(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const profile = await artisanService.getById(String(req.params.id));
+      res.status(200).json({ data: profile });
     } catch (err) {
       next(err);
     }

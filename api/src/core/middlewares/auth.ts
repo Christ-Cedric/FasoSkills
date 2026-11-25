@@ -40,6 +40,28 @@ export function authenticate(req: Request, _res: Response, next: NextFunction): 
   }
 }
 
+export function optionalAuthenticate(req: Request, _res: Response, next: NextFunction): void {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    next();
+    return;
+  }
+
+  const token = authHeader.split(' ')[1];
+  try {
+    const payload = jwt.verify(token, env.JWT_ACCESS_SECRET) as AuthUser;
+    req.user = {
+      id: payload.id,
+      email: payload.email,
+      role: payload.role,
+      artisanProfileId: payload.artisanProfileId,
+    };
+  } catch {
+    // Ignore invalid optional token on public routes
+  }
+  next();
+}
+
 export function requireRole(allowedRoles: Array<'client' | 'artisan' | 'admin'>) {
   return (req: Request, _res: Response, next: NextFunction): void => {
     if (!req.user) {
