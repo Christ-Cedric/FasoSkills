@@ -82,6 +82,7 @@ flutter run --dart-define=API_BASE_URL=http://127.0.0.1:8000/api --dart-define=W
 | **Client** | `client2@fasoskills.bf` | `Password123!` | Évaluation d'interventions terminées |
 | **Artisan** | `artisan1@fasoskills.bf` | `Password123!` | Plombier qualifié (Ouagadougou), soumission de devis |
 | **Artisan** | `artisan2@fasoskills.bf` | `Password123!` | Électricien solaire (Bobo-Dioulasso) |
+| **Artisan (en attente)** | `artisan3@fasoskills.bf` | `Password123!` | Menuisier à Koudougou (en attente de vérification admin) |
 
 ---
 
@@ -94,11 +95,24 @@ flutter run --dart-define=API_BASE_URL=http://127.0.0.1:8000/api --dart-define=W
 | `POST` | `/api/auth/refresh` | Public | 200 | 401 | Rotation stricte du refresh token (A6) |
 | `POST` | `/api/auth/logout` | Authentifié | 200 | 400 | Révocation de la session en base |
 | `GET` | `/api/auth/me` | Authentifié | 200 | 401 | Profil de l'utilisateur connecté |
-| `GET` | `/api/categories` | Public | 200 | - | Liste des corps de métier (avec icônes) |
+| `GET` | `/api/categories` | Public | 200 | - | Liste des corps de métier actifs (`?includeInactive=true` pour Admin) |
+| `POST` | `/api/categories` | Admin | 201 | 409, 422 | Création d'une catégorie de métier |
+| `PATCH` | `/api/categories/:id` | Admin | 200 | 404, 409, 422 | Mise à jour d'une catégorie (dont `isActive`) |
+| `DELETE` | `/api/categories/:id` | Admin | 204 | 404, 409 | Suppression d'une catégorie inutilisée |
 | `GET` | `/api/artisans` | Public | 200 | 400 | Liste paginée, recherche plein texte et filtres |
 | `GET` | `/api/artisans/:id` | Public | 200 | 404 | Détail complet d'un artisan et avis |
 | `PUT` | `/api/artisans/:id` | Artisan/Admin | 200 | 403, 404 | Modification de son profil uniquement (A7) |
-| `POST` | `/api/artisans/:id/verify` | Admin | 200 | 403, 404 | Attribution du badge vérifié (T18) |
+| `POST` | `/api/artisans/:id/verify` | Admin | 200 | 403, 404, 409 | Attribution du badge vérifié (T18) |
+| `GET` | `/api/admin/stats` | Admin | 200 | 401, 403 | Métriques globales & graphiques (agrégation MongoDB) |
+| `GET` | `/api/admin/artisans` | Admin | 200 | 401, 403, 422 | Liste paginée filtrée (`status=pending\|verified\|all`, `q`) |
+| `GET` | `/api/admin/artisans/:id` | Admin | 200 | 401, 403, 404 | Détail complet artisan & pièces justificatives |
+| `POST` | `/api/admin/artisans/:id/reject` | Admin | 200 | 401, 403, 404, 422 | Refus de vérification avec motif (`reason`) |
+| `GET` | `/api/admin/categories` | Admin | 200 | 401, 403 | Liste complète des catégories (actives et inactives) |
+| `POST` | `/api/reports` | Client/Artisan | 201 | 401, 404, 422 | Signalement d'un contenu (`request`, `review`, `message`) |
+| `GET` | `/api/admin/reports` | Admin | 200 | 401, 403, 422 | Liste paginée des signalements (`type`, `status`) |
+| `PATCH` | `/api/admin/reports/:id` | Admin | 200 | 401, 403, 404 | Ignorer / résoudre un signalement |
+| `DELETE` | `/api/admin/content/:type/:id` | Admin | 204 | 401, 403, 404 | Suppression de contenu modéré avec motif journalisé |
+| `GET` | `/api/admin/moderation-logs` | Admin | 200 | 401, 403 | Journal d'audit des actions de modération |
 | `GET` | `/api/requests` | Public / Auth | 200 | 400 | Liste paginée des demandes (filtre `myOnly`) |
 | `POST` | `/api/requests` | Client | 201 | 401, 422 | Création d'une demande + diffusion WebSocket |
 | `PUT` | `/api/requests/:id` | Client/Admin | 200 | 403, 404 | Modification de sa propre demande uniquement |
