@@ -19,9 +19,15 @@ import { NotFoundError } from './core/errors/app-error.js';
 export function createApp(): Application {
   const app: Application = express();
 
-  // A11. Security middlewares
-  app.use(helmet());
-  app.use(cors());
+  // A11. Security middlewares - allow cross-origin resource policy for Flutter Web
+  app.use(helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+  }));
+  app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  }));
 
   // A11. Body size limit
   app.use(express.json({ limit: '5mb' }));

@@ -30,29 +30,31 @@ class AppRouter {
       final loc = state.matchedLocation;
       final isAuth = authState is Authenticated;
       final isAdmin = isAuth && authState.user.isAdmin;
-      final isAuthScreen =
-          loc == '/login' || loc == '/register' || loc == '/splash';
+      final isAuthScreen = loc == '/login' || loc == '/register';
+      final isSplash = loc == '/splash';
 
-      // While checking initial session on splash
+      // Initial session check: show splash without redirecting away from it.
       if (authState is AuthInitial) {
-        return loc == '/splash' ? null : '/splash';
+        return isSplash ? null : '/splash';
       }
-      if (authState is AuthLoading && loc == '/splash') {
+
+      // Session check in progress on splash: wait there.
+      // AuthLoading elsewhere (login, register, logout) must not bounce to splash.
+      if (authState is AuthLoading && isSplash) {
         return null;
       }
 
-      // Unauthenticated user trying to access any protected route -> /login (F5)
+      // Unauthenticated users may stay on the login and registration screens.
       if (!isAuth) {
-        if (loc == '/splash') return '/login';
         return isAuthScreen ? null : '/login';
       }
 
-      // Authenticated user on auth screens -> redirect to role home
-      if (isAuthScreen) {
+      // Once the session check is complete, leave splash and auth screens.
+      if (isAuthScreen || isSplash) {
         return isAdmin ? '/admin/dashboard' : '/home';
       }
 
-      // Guard F5 & §7.2: non-admin user trying to access /admin/** -> role home
+      // Protect the administration area from non-admin accounts.
       if (loc.startsWith('/admin') && !isAdmin) {
         return '/home';
       }
