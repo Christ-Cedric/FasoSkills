@@ -8,6 +8,10 @@ import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/artisans/presentation/bloc/artisan_list_bloc.dart';
 import 'features/requests/presentation/bloc/request_bloc.dart';
 import 'features/chat/presentation/bloc/chat_bloc.dart';
+import 'features/admin/dashboard/presentation/bloc/admin_dashboard_bloc.dart';
+import 'features/admin/artisans/presentation/bloc/admin_artisans_bloc.dart';
+import 'features/admin/categories/presentation/bloc/categories_bloc.dart';
+import 'features/admin/moderation/presentation/bloc/moderation_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,7 +40,7 @@ class _FasoSkillsAppState extends State<FasoSkillsApp> {
   void initState() {
     super.initState();
     _authBloc = getIt<AuthBloc>();
-    // F5: Declarative navigation with auth-driven route guard
+    // F5: Declarative navigation with auth-driven & role-driven route guard
     _appRouter = AppRouter(authBloc: _authBloc);
   }
 
@@ -48,6 +52,14 @@ class _FasoSkillsAppState extends State<FasoSkillsApp> {
         BlocProvider<ArtisanListBloc>(create: (_) => getIt<ArtisanListBloc>()),
         BlocProvider<RequestBloc>(create: (_) => getIt<RequestBloc>()),
         BlocProvider<ChatBloc>(create: (_) => getIt<ChatBloc>()),
+        BlocProvider<AdminDashboardBloc>(
+          create: (_) => getIt<AdminDashboardBloc>(),
+        ),
+        BlocProvider<AdminArtisansBloc>(
+          create: (_) => getIt<AdminArtisansBloc>(),
+        ),
+        BlocProvider<CategoriesBloc>(create: (_) => getIt<CategoriesBloc>()),
+        BlocProvider<ModerationBloc>(create: (_) => getIt<ModerationBloc>()),
       ],
       child: MaterialApp.router(
         title: 'FasoSkills',

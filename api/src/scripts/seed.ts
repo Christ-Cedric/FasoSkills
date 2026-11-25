@@ -6,6 +6,8 @@ import { ArtisanProfile } from '../modules/artisans/artisan.model.js';
 import { ServiceRequest } from '../modules/requests/request.model.js';
 import { Quote } from '../modules/quotes/quote.model.js';
 import { Review } from '../modules/reviews/review.model.js';
+import { Conversation, Message } from '../modules/chat/chat.model.js';
+import { ModerationLog, Report } from '../modules/reports/report.model.js';
 
 async function seed() {
   await connectDatabase();
@@ -19,6 +21,10 @@ async function seed() {
     ServiceRequest.deleteMany({}),
     Quote.deleteMany({}),
     Review.deleteMany({}),
+    Conversation.deleteMany({}),
+    Message.deleteMany({}),
+    Report.deleteMany({}),
+    ModerationLog.deleteMany({}),
   ]);
 
   const salt = await bcrypt.genSalt(10);
@@ -35,7 +41,7 @@ async function seed() {
   ]);
 
   // 2. Users
-  const admin = await User.create({
+  await User.create({
     email: 'admin@fasoskills.bf',
     phone: '+22670000001',
     fullName: 'Administrateur Principal',
@@ -80,6 +86,15 @@ async function seed() {
     isVerified: true,
   });
 
+  const artisanUser3 = await User.create({
+    email: 'artisan3@fasoskills.bf',
+    phone: '+22670555555',
+    fullName: 'Boubacar Compaoré',
+    passwordHash: commonPassword,
+    role: 'artisan',
+    isVerified: false,
+  });
+
   // 3. Artisan Profiles
   const profile1 = await ArtisanProfile.create({
     userId: artisanUser1._id,
@@ -93,6 +108,11 @@ async function seed() {
     reviewsCount: 12,
     completedJobs: 15,
     isVerified: true,
+    verificationStatus: 'verified',
+    documents: [
+      { name: 'CNIB', type: 'id_card', url: 'https://cdn.fasoskills.bf/docs/moussa-cnib.jpg' },
+      { name: 'Certificat de Qualification', type: 'certificate', url: 'https://cdn.fasoskills.bf/docs/moussa-cert.pdf' },
+    ],
     profileStatus: 'complete',
   });
 
@@ -108,6 +128,30 @@ async function seed() {
     reviewsCount: 8,
     completedJobs: 10,
     isVerified: true,
+    verificationStatus: 'verified',
+    documents: [
+      { name: 'CNIB', type: 'id_card', url: 'https://cdn.fasoskills.bf/docs/seydou-cnib.jpg' },
+    ],
+    profileStatus: 'complete',
+  });
+
+  await ArtisanProfile.create({
+    userId: artisanUser3._id,
+    category: categories[2]._id, // Menuiserie
+    specialty: 'Menuisier Bois & Aluminium',
+    city: 'Koudougou',
+    experienceYears: 4,
+    bio: 'Fabrication de portes, fenêtres aluminium et mobilier sur mesure.',
+    availability: 'Disponible',
+    rating: 0,
+    reviewsCount: 0,
+    completedJobs: 0,
+    isVerified: false,
+    verificationStatus: 'pending',
+    documents: [
+      { name: 'CNIB Recto/Verso', type: 'id_card', url: 'https://cdn.fasoskills.bf/docs/boubacar-cnib.jpg' },
+      { name: 'Attestation d’atelier', type: 'certificate', url: 'https://cdn.fasoskills.bf/docs/boubacar-atelier.pdf' },
+    ],
     profileStatus: 'complete',
   });
 
@@ -133,7 +177,7 @@ async function seed() {
   });
 
   // 5. Quotes
-  const quote1 = await Quote.create({
+  await Quote.create({
     requestId: request1._id,
     artisanId: profile1._id,
     amount: 15000,
@@ -155,7 +199,7 @@ async function seed() {
   await request2.save();
 
   // 6. Review
-  await Review.create({
+  const review1 = await Review.create({
     requestId: request2._id,
     clientId: client2._id,
     artisanId: profile2._id,
@@ -163,11 +207,66 @@ async function seed() {
     comment: 'Excellent travail, ponctuel et très professionnel !',
   });
 
+  // 7. Chat conversation & sample message
+  const conv = await Conversation.create({
+    participants: [client1._id, artisanUser1._id],
+    lastMessage: 'Bonjour, je peux passer vers 16h.',
+    lastMessageAt: new Date(),
+  });
+
+  const msg = await Message.create({
+    conversationId: conv._id,
+    senderId: artisanUser1._id,
+    text: 'Bonjour, je peux passer vers 16h.',
+    isRead: false,
+  });
+
+  // 8. Sample pending reports for Admin Moderation demo
+  await Report.create([
+    {
+      reporterId: artisanUser1._id,
+      targetType: 'request',
+      targetId: request1._id,
+      reason: 'Adresse imprécise',
+      description: 'Le numéro de parcelle manque pour localiser le chantier.',
+      status: 'pending',
+      targetSnapshot: {
+        title: request1.title,
+        city: request1.city,
+        authorName: client1.fullName,
+      },
+    },
+    {
+      reporterId: client2._id,
+      targetType: 'review',
+      targetId: review1._id,
+      reason: 'Vérification de conformité',
+      status: 'pending',
+      targetSnapshot: {
+        rating: review1.rating,
+        comment: review1.comment,
+        authorName: client2.fullName,
+      },
+    },
+    {
+      reporterId: client1._id,
+      targetType: 'message',
+      targetId: msg._id,
+      reason: 'Vérification de message',
+      status: 'pending',
+      targetSnapshot: {
+        text: msg.text,
+        authorName: artisanUser1.fullName,
+      },
+    },
+  ]);
+
   console.log('✅ Database seeded successfully!');
   console.log('Test Accounts (Password: Password123!):');
   console.log('- Admin: admin@fasoskills.bf');
   console.log('- Client: client1@fasoskills.bf');
-  console.log('- Artisan: artisan1@fasoskills.bf');
+  console.log('- Artisan (vérifié): artisan1@fasoskills.bf');
+  console.log('- Artisan (en attente): artisan3@fasoskills.bf');
 
   await disconnectDatabase();
 }

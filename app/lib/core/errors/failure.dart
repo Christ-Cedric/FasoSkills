@@ -20,6 +20,22 @@ class ValidationFailure extends Failure {
   final List<dynamic>? errors;
   const ValidationFailure(super.message, {this.errors})
       : super(code: 'VALIDATION_ERROR', details: errors);
+
+  /// Extrait les erreurs 422 sous forme `{champ: message}` pour l'affichage sous les champs (F10).
+  Map<String, String> get fieldErrors {
+    final map = <String, String>{};
+    if (errors == null) return map;
+    for (final item in errors!) {
+      if (item is Map) {
+        final field = item['field']?.toString();
+        final msg = item['message']?.toString();
+        if (field != null && field.isNotEmpty && msg != null && msg.isNotEmpty) {
+          map[field] = msg;
+        }
+      }
+    }
+    return map;
+  }
 }
 
 class AuthFailure extends Failure {

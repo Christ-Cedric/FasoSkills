@@ -21,6 +21,22 @@ import '../../features/chat/domain/repositories/chat_repository.dart';
 import '../../features/chat/data/repositories/chat_repository_impl.dart';
 import '../../features/chat/presentation/bloc/chat_bloc.dart';
 
+import '../../features/admin/dashboard/domain/repositories/admin_dashboard_repository.dart';
+import '../../features/admin/dashboard/data/repositories/admin_dashboard_repository_impl.dart';
+import '../../features/admin/dashboard/presentation/bloc/admin_dashboard_bloc.dart';
+
+import '../../features/admin/artisans/domain/repositories/admin_artisans_repository.dart';
+import '../../features/admin/artisans/data/repositories/admin_artisans_repository_impl.dart';
+import '../../features/admin/artisans/presentation/bloc/admin_artisans_bloc.dart';
+
+import '../../features/admin/categories/domain/repositories/admin_categories_repository.dart';
+import '../../features/admin/categories/data/repositories/admin_categories_repository_impl.dart';
+import '../../features/admin/categories/presentation/bloc/categories_bloc.dart';
+
+import '../../features/admin/moderation/domain/repositories/moderation_repository.dart';
+import '../../features/admin/moderation/data/repositories/moderation_repository_impl.dart';
+import '../../features/admin/moderation/presentation/bloc/moderation_bloc.dart';
+
 final getIt = GetIt.instance;
 
 Future<void> setupDependencyInjection() async {
@@ -63,6 +79,26 @@ Future<void> setupDependencyInjection() async {
     () => ChatRepositoryImpl(apiClient: getIt<ApiClient>()),
   );
 
+  // Admin repositories
+  getIt.registerLazySingleton<AdminDashboardRepository>(
+    () => AdminDashboardRepositoryImpl(
+      apiClient: getIt<ApiClient>(),
+      cacheService: getIt<CacheService>(),
+    ),
+  );
+
+  getIt.registerLazySingleton<AdminArtisansRepository>(
+    () => AdminArtisansRepositoryImpl(apiClient: getIt<ApiClient>()),
+  );
+
+  getIt.registerLazySingleton<AdminCategoriesRepository>(
+    () => AdminCategoriesRepositoryImpl(apiClient: getIt<ApiClient>()),
+  );
+
+  getIt.registerLazySingleton<ModerationRepository>(
+    () => ModerationRepositoryImpl(apiClient: getIt<ApiClient>()),
+  );
+
   // 3. BLoCs / Cubits (State management - F2)
   getIt.registerFactory<AuthBloc>(
     () => AuthBloc(authRepository: getIt<AuthRepository>()),
@@ -81,5 +117,26 @@ Future<void> setupDependencyInjection() async {
       repository: getIt<ChatRepository>(),
       wsClient: getIt<WebSocketClient>(),
     ),
+  );
+
+  // Admin BLoCs
+  getIt.registerFactory<AdminDashboardBloc>(
+    () => AdminDashboardBloc(
+      dashboardRepository: getIt<AdminDashboardRepository>(),
+      artisansRepository: getIt<AdminArtisansRepository>(),
+      categoriesRepository: getIt<AdminCategoriesRepository>(),
+    ),
+  );
+
+  getIt.registerFactory<AdminArtisansBloc>(
+    () => AdminArtisansBloc(repository: getIt<AdminArtisansRepository>()),
+  );
+
+  getIt.registerFactory<CategoriesBloc>(
+    () => CategoriesBloc(repository: getIt<AdminCategoriesRepository>()),
+  );
+
+  getIt.registerFactory<ModerationBloc>(
+    () => ModerationBloc(repository: getIt<ModerationRepository>()),
   );
 }

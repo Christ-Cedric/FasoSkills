@@ -10,6 +10,12 @@ import '../../features/artisans/presentation/screens/search_screen.dart';
 import '../../features/requests/presentation/screens/my_requests_screen.dart';
 import '../../features/requests/presentation/screens/request_quote_screen.dart';
 import '../../features/chat/presentation/screens/messages_screen.dart';
+import '../../features/admin/dashboard/presentation/screens/admin_dashboard_screen.dart';
+import '../../features/admin/artisans/presentation/screens/admin_artisans_screen.dart';
+import '../../features/admin/artisans/presentation/screens/admin_artisan_detail_screen.dart';
+import '../../features/admin/categories/presentation/screens/admin_categories_screen.dart';
+import '../../features/admin/moderation/presentation/screens/admin_moderation_screen.dart';
+import '../../features/admin/profile/presentation/screens/admin_profile_screen.dart';
 
 class AppRouter {
   final AuthBloc authBloc;
@@ -21,24 +27,39 @@ class AppRouter {
     refreshListenable: GoRouterRefreshStream(authBloc.stream),
     redirect: (BuildContext context, GoRouterState state) {
       final authState = authBloc.state;
+      final loc = state.matchedLocation;
       final isAuth = authState is Authenticated;
-      final isLoggingIn = state.matchedLocation == '/login' ||
-          state.matchedLocation == '/register' ||
-          state.matchedLocation == '/splash';
+      final isAdmin = isAuth && authState.user.isAdmin;
+      final isAuthScreen =
+          loc == '/login' || loc == '/register' || loc == '/splash';
 
-      // While determining auth status on splash
-      if (authState is AuthInitial || authState is AuthLoading) {
-        return '/splash';
+      // While checking initial session on splash
+      if (authState is AuthInitial) {
+        return loc == '/splash' ? null : '/splash';
+      }
+      if (authState is AuthLoading && loc == '/splash') {
+        return null;
       }
 
-      // If user is not authenticated and tries to access protected route
-      if (!isAuth && !isLoggingIn) {
-        return '/login';
+      // Unauthenticated user trying to access any protected route -> /login (F5)
+      if (!isAuth) {
+        if (loc == '/splash') return '/login';
+        return isAuthScreen ? null : '/login';
       }
 
-      // If user is authenticated and is on auth screens, redirect to home
-      if (isAuth && isLoggingIn) {
+      // Authenticated user on auth screens -> redirect to role home
+      if (isAuthScreen) {
+        return isAdmin ? '/admin/dashboard' : '/home';
+      }
+
+      // Guard F5 & §7.2: non-admin user trying to access /admin/** -> role home
+      if (loc.startsWith('/admin') && !isAdmin) {
         return '/home';
+      }
+
+      // Admin user stays inside admin console
+      if (!loc.startsWith('/admin') && isAdmin) {
+        return '/admin/dashboard';
       }
 
       return null;
@@ -75,6 +96,33 @@ class AppRouter {
       GoRoute(
         path: '/messages',
         builder: (context, state) => const MessagesScreen(),
+      ),
+      // ── Admin Routes (§7.2) ──────────────────────────────────────────────
+      GoRoute(
+        path: '/admin/dashboard',
+        builder: (context, state) => const AdminDashboardScreen(),
+      ),
+      GoRoute(
+        path: '/admin/artisans',
+        builder: (context, state) => const AdminArtisansScreen(),
+      ),
+      GoRoute(
+        path: '/admin/artisans/:id',
+        builder: (context, state) => AdminArtisanDetailScreen(
+          artisanId: state.pathParameters['id']!,
+        ),
+      ),
+      GoRoute(
+        path: '/admin/categories',
+        builder: (context, state) => const AdminCategoriesScreen(),
+      ),
+      GoRoute(
+        path: '/admin/moderation',
+        builder: (context, state) => const AdminModerationScreen(),
+      ),
+      GoRoute(
+        path: '/admin/profile',
+        builder: (context, state) => const AdminProfileScreen(),
       ),
     ],
   );

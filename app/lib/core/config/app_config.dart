@@ -4,12 +4,12 @@ class AppConfig {
 
   static const String apiBaseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://127.0.0.1:5001/api',
+    defaultValue: 'http://127.0.0.1:8000/api',
   );
 
   static const String wsUrl = String.fromEnvironment(
     'WS_URL',
-    defaultValue: 'ws://127.0.0.1:5001/ws',
+    defaultValue: 'ws://127.0.0.1:8000/ws',
   );
 
   static const Duration connectTimeout = Duration(seconds: 15);

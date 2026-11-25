@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class CacheService {
   static const String keyArtisanList = 'cache_artisan_list';
   static const String keyCategories = 'cache_categories';
+  static const String keyAdminStats = 'cache_admin_stats';
 
   Future<void> saveJson(String key, dynamic data) async {
     final prefs = await SharedPreferences.getInstance();
