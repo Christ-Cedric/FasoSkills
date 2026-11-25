@@ -23,6 +23,7 @@ import '../../features/admin/categories/presentation/screens/admin_categories_sc
 import '../../features/admin/moderation/presentation/screens/admin_moderation_screen.dart';
 import '../../features/admin/profile/presentation/screens/admin_profile_screen.dart';
 import '../../features/chat/presentation/screens/contact_screen.dart';
+import '../../features/notifications/presentation/screens/notifications_screen.dart';
 
 class AppRouter {
   final AuthBloc authBloc;
@@ -97,6 +98,10 @@ class AppRouter {
       GoRoute(
         path: '/requests',
         builder: (context, state) => const MyRequestsScreen(),
+      ),
+      GoRoute(
+        path: '/notifications',
+        builder: (context, state) => const NotificationsScreen(),
       ),
       GoRoute(
         path: '/request-quote',

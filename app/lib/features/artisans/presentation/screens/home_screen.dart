@@ -382,7 +382,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: Color(0xFF1E293B),
                     size: 22,
                   ),
-                  onPressed: () => context.push('/discussions'),
+                  onPressed: () => context.push('/notifications'),
                 ),
                 Positioned(
                   top: 0,
@@ -581,7 +581,7 @@ class _HomeScreenState extends State<HomeScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Featured Services',
+            'Services populaires',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w800,
@@ -596,9 +596,9 @@ class _HomeScreenState extends State<HomeScreen> {
             itemCount: _featuredServices.length,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 4,
-              mainAxisSpacing: 14,
-              crossAxisSpacing: 12,
-              childAspectRatio: 0.84,
+              mainAxisSpacing: 10,
+              crossAxisSpacing: 10,
+              childAspectRatio: 0.82,
             ),
             itemBuilder: (context, index) {
               final service = _featuredServices[index];
@@ -607,44 +607,34 @@ class _HomeScreenState extends State<HomeScreen> {
                   // Direct to dedicated professionals list with this category!
                   context.push('/artisans-list', extra: service['title']);
                 },
-                child: Column(
-                  children: [
-                    Container(
-                      width: 58,
-                      height: 58,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: const Color(0xFFE2E8F0)),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.03),
-                            blurRadius: 10,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 9),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.055),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
                       ),
-                      child: Center(
-                        child: Icon(
-                          service['icon'] as IconData,
-                          color: service['color'] as Color,
-                          size: 26,
-                        ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(service['icon'] as IconData, color: service['color'] as Color, size: 27),
+                      const SizedBox(height: 7),
+                      Text(
+                        service['title'] as String,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 10.5, height: 1.15, fontWeight: FontWeight.w700, color: Color(0xFF334155)),
                       ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      service['title'] as String,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF334155),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               );
             },
@@ -654,64 +644,63 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /// 6. Quick Action 4-card Row (Harmonized with Featured Services)
+  /// 6. Quick actions in the same compact tile layout as popular services.
   Widget _buildQuickActionsGrid() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: _quickActions.map((act) {
-          return Expanded(
-            child: GestureDetector(
+      child: GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: _quickActions.length,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 4,
+          mainAxisSpacing: 10,
+          crossAxisSpacing: 10,
+          childAspectRatio: 0.82,
+        ),
+        itemBuilder: (context, index) {
+          final act = _quickActions[index];
+          return GestureDetector(
               onTap: () {
                 final route = act['route'] as String;
                 context.push(route);
               },
               child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 4),
-                child: Column(
-                  children: [
-                    Container(
-                      width: 58,
-                      height: 58,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: const Color(0xFFE2E8F0)),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.03),
-                            blurRadius: 10,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      child: Center(
-                        child: Icon(
-                          act['icon'] as IconData,
-                          color: act['color'] as Color,
-                          size: 26,
-                        ),
-                      ),
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 9),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.055),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
                     ),
-                    const SizedBox(height: 6),
+                  ],
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(act['icon'] as IconData, color: act['color'] as Color, size: 27),
+                    const SizedBox(height: 7),
                     Text(
                       act['label'] as String,
-                      maxLines: 1,
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
-                        fontSize: 10.5,
-                        fontWeight: FontWeight.w600,
+                        fontSize: 10,
+                        height: 1.15,
+                        fontWeight: FontWeight.w700,
                         color: Color(0xFF334155),
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
-          );
-        }).toList(),
+            );
+        },
       ),
     );
   }
