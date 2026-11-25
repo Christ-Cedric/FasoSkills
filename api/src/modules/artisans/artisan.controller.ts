@@ -1,0 +1,47 @@
+import type { Request, Response, NextFunction } from 'express';
+import { artisanService } from './artisan.service.js';
+
+export class ArtisanController {
+  public async list(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const result = await artisanService.list(req.query as any);
+      res.status(200).json(result);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async getById(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const profile = await artisanService.getById(String(req.params.id));
+      res.status(200).json({ data: profile });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async update(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const profile = await artisanService.updateProfile(
+        String(req.params.id),
+        req.user!.id,
+        req.user!.role,
+        req.body
+      );
+      res.status(200).json({ data: profile, message: 'Profile updated successfully' });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async verify(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const profile = await artisanService.verifyArtisan(String(req.params.id), req.user!.role === 'admin');
+      res.status(200).json({ data: profile, message: 'Artisan verified' });
+    } catch (err) {
+      next(err);
+    }
+  }
+}
+
+export const artisanController = new ArtisanController();
