@@ -82,11 +82,15 @@ class Artisan extends Equatable {
 
     return Artisan(
       id: json['id'] ?? json['_id'] ?? '',
-      userId: user != null ? (user['id'] ?? user['_id'] ?? '') : (json['userId'] ?? ''),
-      fullName: user != null ? (user['fullName'] ?? '') : (json['fullName'] ?? ''),
+      userId: user != null
+          ? (user['id'] ?? user['_id'] ?? '')
+          : (json['userId'] ?? ''),
+      fullName:
+          user != null ? (user['fullName'] ?? '') : (json['fullName'] ?? ''),
       email: user != null ? user['email'] : json['email'],
       phone: user != null ? user['phone'] : json['phone'],
-      profilePicture: user != null ? user['profilePicture'] : json['profilePicture'],
+      profilePicture:
+          user != null ? user['profilePicture'] : json['profilePicture'],
       specialty: json['specialty'] ?? '',
       city: json['city'] ?? 'Ouagadougou',
       category: cat,
@@ -96,7 +100,8 @@ class Artisan extends Equatable {
       rating: (json['rating'] as num?)?.toDouble() ?? 0.0,
       reviewsCount: json['reviewsCount'] ?? 0,
       completedJobs: json['completedJobs'] ?? 0,
-      isVerified: json['isVerified'] ?? (user != null ? (user['isVerified'] ?? false) : false),
+      isVerified: json['isVerified'] ??
+          (user != null ? (user['isVerified'] ?? false) : false),
     );
   }
 

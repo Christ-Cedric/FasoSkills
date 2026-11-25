@@ -59,7 +59,10 @@ class _RequestQuoteScreenState extends State<RequestQuoteScreen> {
             children: [
               const Text(
                 'Décrivez votre besoin',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textColor),
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.textColor),
               ),
               const SizedBox(height: 4),
               const Text(
@@ -71,15 +74,20 @@ class _RequestQuoteScreenState extends State<RequestQuoteScreen> {
                 value: _selectedCategory,
                 decoration: InputDecoration(
                   labelText: 'Corps de métier',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
                   filled: true,
                   fillColor: AppTheme.inputFillColor,
                 ),
                 items: const [
-                  DropdownMenuItem(value: 'plomberie', child: Text('Plomberie')),
-                  DropdownMenuItem(value: 'electricite', child: Text('Électricité')),
-                  DropdownMenuItem(value: 'menuiserie', child: Text('Menuiserie')),
-                  DropdownMenuItem(value: 'maconnerie', child: Text('Maçonnerie')),
+                  DropdownMenuItem(
+                      value: 'plomberie', child: Text('Plomberie')),
+                  DropdownMenuItem(
+                      value: 'electricite', child: Text('Électricité')),
+                  DropdownMenuItem(
+                      value: 'menuiserie', child: Text('Menuiserie')),
+                  DropdownMenuItem(
+                      value: 'maconnerie', child: Text('Maçonnerie')),
                   DropdownMenuItem(value: 'peinture', child: Text('Peinture')),
                 ],
                 onChanged: (val) {
@@ -91,11 +99,14 @@ class _RequestQuoteScreenState extends State<RequestQuoteScreen> {
                 controller: _titleController,
                 decoration: InputDecoration(
                   labelText: 'Titre de la demande (ex: Fuite d’eau cuisine)',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
                   filled: true,
                   fillColor: AppTheme.inputFillColor,
                 ),
-                validator: (v) => v == null || v.trim().length < 5 ? 'Minimum 5 caractères requis' : null,
+                validator: (v) => v == null || v.trim().length < 5
+                    ? 'Minimum 5 caractères requis'
+                    : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -103,30 +114,37 @@ class _RequestQuoteScreenState extends State<RequestQuoteScreen> {
                 maxLines: 4,
                 decoration: InputDecoration(
                   labelText: 'Description détaillée',
-                  hintText: 'Précisez l’urgence, la panne constatée, les contraintes...',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  hintText:
+                      'Précisez l’urgence, la panne constatée, les contraintes...',
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
                   filled: true,
                   fillColor: AppTheme.inputFillColor,
                 ),
-                validator: (v) => v == null || v.trim().length < 10 ? 'Minimum 10 caractères requis' : null,
+                validator: (v) => v == null || v.trim().length < 10
+                    ? 'Minimum 10 caractères requis'
+                    : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _cityController,
                 decoration: InputDecoration(
                   labelText: 'Ville',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
                   filled: true,
                   fillColor: AppTheme.inputFillColor,
                 ),
-                validator: (v) => v == null || v.trim().isEmpty ? 'Ville requise' : null,
+                validator: (v) =>
+                    v == null || v.trim().isEmpty ? 'Ville requise' : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _addressController,
                 decoration: InputDecoration(
                   labelText: 'Quartier / Adresse (facultatif)',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
                   filled: true,
                   fillColor: AppTheme.inputFillColor,
                 ),
@@ -138,9 +156,12 @@ class _RequestQuoteScreenState extends State<RequestQuoteScreen> {
                   backgroundColor: AppTheme.primaryColor,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                 ),
-                child: const Text('Publier la demande', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                child: const Text('Publier la demande',
+                    style:
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               ),
             ],
           ),

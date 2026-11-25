@@ -540,7 +540,8 @@ class _CategoryFormSheetState extends State<_CategoryFormSheet> {
                           color: selected ? Colors.white : AppTheme.adminIndigo,
                           fontWeight: FontWeight.w600,
                         ),
-                        onSelected: (_) => setState(() => _selectedIcon = item.$1),
+                        onSelected: (_) =>
+                            setState(() => _selectedIcon = item.$1),
                       );
                     }).toList(),
                   ),

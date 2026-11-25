@@ -409,7 +409,8 @@ class ModerationBloc extends Bloc<ModerationEvent, ModerationState> {
     } else {
       final result = await _repository.listModerationLogs();
       result.when(
-        success: (logs) => emit(ModerationLoaded(reports: const [], logs: logs)),
+        success: (logs) =>
+            emit(ModerationLoaded(reports: const [], logs: logs)),
         failure: (failure) => emit(ModerationError(failure.message)),
       );
     }

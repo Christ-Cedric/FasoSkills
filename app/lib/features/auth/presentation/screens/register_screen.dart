@@ -67,7 +67,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
           return SafeArea(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
               child: Form(
                 key: _formKey,
                 child: Column(
@@ -97,11 +98,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       decoration: InputDecoration(
                         labelText: 'Nom complet',
                         prefixIcon: const Icon(Icons.person_outline),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12)),
                         filled: true,
                         fillColor: AppTheme.inputFillColor,
                       ),
-                      validator: (v) => v == null || v.trim().isEmpty ? 'Nom requis' : null,
+                      validator: (v) =>
+                          v == null || v.trim().isEmpty ? 'Nom requis' : null,
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
@@ -110,11 +113,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       decoration: InputDecoration(
                         labelText: 'Email',
                         prefixIcon: const Icon(Icons.email_outlined),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12)),
                         filled: true,
                         fillColor: AppTheme.inputFillColor,
                       ),
-                      validator: (v) => v == null || !v.contains('@') ? 'Email valide requis' : null,
+                      validator: (v) => v == null || !v.contains('@')
+                          ? 'Email valide requis'
+                          : null,
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
@@ -123,7 +129,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       decoration: InputDecoration(
                         labelText: 'Numéro de téléphone (+226...)',
                         prefixIcon: const Icon(Icons.phone_outlined),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12)),
                         filled: true,
                         fillColor: AppTheme.inputFillColor,
                       ),
@@ -135,11 +142,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       decoration: InputDecoration(
                         labelText: 'Mot de passe (min 6 caractères)',
                         prefixIcon: const Icon(Icons.lock_outline),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12)),
                         filled: true,
                         fillColor: AppTheme.inputFillColor,
                       ),
-                      validator: (v) => v == null || v.length < 6 ? 'Min 6 caractères' : null,
+                      validator: (v) =>
+                          v == null || v.length < 6 ? 'Min 6 caractères' : null,
                     ),
                     const SizedBox(height: 28),
                     ElevatedButton(
@@ -148,11 +157,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         backgroundColor: AppTheme.primaryColor,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
                       ),
                       child: isLoading
                           ? const CircularProgressIndicator(color: Colors.white)
-                          : const Text('Créer mon compte', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                          : const Text('Créer mon compte',
+                              style: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold)),
                     ),
                     const SizedBox(height: 12),
                     TextButton(

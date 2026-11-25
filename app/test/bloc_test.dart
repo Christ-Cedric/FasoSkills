@@ -15,7 +15,9 @@ import 'package:app/features/requests/domain/repositories/request_repository.dar
 import 'package:app/features/requests/presentation/bloc/request_bloc.dart';
 
 class MockAuthRepository extends Mock implements AuthRepository {}
+
 class MockArtisanRepository extends Mock implements ArtisanRepository {}
+
 class MockRequestRepository extends Mock implements RequestRepository {}
 
 void main() {
@@ -57,9 +59,11 @@ void main() {
         'emits [AuthLoading, AuthFailureState] when LoginSubmitted fails',
         build: () {
           when(() => mockAuthRepository.login(
-                email: 'wrong@test.bf',
-                password: 'wrong',
-              )).thenAnswer((_) async => const FailureResult(AuthFailure('Invalid credentials')));
+                    email: 'wrong@test.bf',
+                    password: 'wrong',
+                  ))
+              .thenAnswer((_) async =>
+                  const FailureResult(AuthFailure('Invalid credentials')));
           return AuthBloc(authRepository: mockAuthRepository);
         },
         act: (bloc) => bloc.add(const LoginSubmitted(
@@ -75,7 +79,8 @@ void main() {
       blocTest<AuthBloc, AuthState>(
         'emits [AuthLoading, Unauthenticated] on CheckAuthStatus with no token',
         build: () {
-          when(() => mockAuthRepository.hasValidToken()).thenAnswer((_) async => false);
+          when(() => mockAuthRepository.hasValidToken())
+              .thenAnswer((_) async => false);
           return AuthBloc(authRepository: mockAuthRepository);
         },
         act: (bloc) => bloc.add(CheckAuthStatus()),
@@ -104,8 +109,10 @@ void main() {
       blocTest<ArtisanListBloc, ArtisanListState>(
         'emits [ArtisanListLoading, ArtisanListLoaded] on LoadArtisans success',
         build: () {
-          when(() => mockArtisanRepository.getCachedArtisans()).thenAnswer((_) async => null);
-          when(() => mockArtisanRepository.getArtisans()).thenAnswer((_) async => const Success([tArtisan]));
+          when(() => mockArtisanRepository.getCachedArtisans())
+              .thenAnswer((_) async => null);
+          when(() => mockArtisanRepository.getArtisans())
+              .thenAnswer((_) async => const Success([tArtisan]));
           return ArtisanListBloc(repository: mockArtisanRepository);
         },
         act: (bloc) => bloc.add(const LoadArtisans()),
@@ -118,8 +125,10 @@ void main() {
       blocTest<ArtisanListBloc, ArtisanListState>(
         'emits [ArtisanListLoading, ArtisanListEmpty] when artisan list is empty',
         build: () {
-          when(() => mockArtisanRepository.getCachedArtisans()).thenAnswer((_) async => null);
-          when(() => mockArtisanRepository.getArtisans()).thenAnswer((_) async => const Success([]));
+          when(() => mockArtisanRepository.getCachedArtisans())
+              .thenAnswer((_) async => null);
+          when(() => mockArtisanRepository.getArtisans())
+              .thenAnswer((_) async => const Success([]));
           return ArtisanListBloc(repository: mockArtisanRepository);
         },
         act: (bloc) => bloc.add(const LoadArtisans()),
@@ -150,8 +159,8 @@ void main() {
       blocTest<RequestBloc, RequestState>(
         'optimistic update: marks cancelled immediately, confirms on success',
         build: () {
-          when(() => mockRequestRepository.cancelRequest('req_1'))
-              .thenAnswer((_) async => Success(tRequest.copyWith(status: 'cancelled')));
+          when(() => mockRequestRepository.cancelRequest('req_1')).thenAnswer(
+              (_) async => Success(tRequest.copyWith(status: 'cancelled')));
           return RequestBloc(repository: mockRequestRepository);
         },
         seed: () => const RequestLoaded([tRequest]),
@@ -171,8 +180,8 @@ void main() {
       blocTest<RequestBloc, RequestState>(
         'optimistic update rollback: rolls back to previous state when API call fails',
         build: () {
-          when(() => mockRequestRepository.cancelRequest('req_1'))
-              .thenAnswer((_) async => const FailureResult(ServerFailure('Erreur réseau')));
+          when(() => mockRequestRepository.cancelRequest('req_1')).thenAnswer(
+              (_) async => const FailureResult(ServerFailure('Erreur réseau')));
           return RequestBloc(repository: mockRequestRepository);
         },
         seed: () => const RequestLoaded([tRequest]),

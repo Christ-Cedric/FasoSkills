@@ -50,7 +50,9 @@ class ArtisanRepositoryImpl implements ArtisanRepository {
       };
       if (search != null && search.isNotEmpty) queryParams['search'] = search;
       if (city != null && city.isNotEmpty) queryParams['city'] = city;
-      if (categoryId != null && categoryId.isNotEmpty) queryParams['categoryId'] = categoryId;
+      if (categoryId != null && categoryId.isNotEmpty) {
+        queryParams['categoryId'] = categoryId;
+      }
 
       final res = await _apiClient.get(
         '/artisans',

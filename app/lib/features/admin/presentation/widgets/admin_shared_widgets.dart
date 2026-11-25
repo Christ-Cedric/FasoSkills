@@ -54,7 +54,11 @@ class AdminFormatters {
   }
 
   static String initials(String fullName) {
-    final parts = fullName.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
+    final parts = fullName
+        .trim()
+        .split(RegExp(r'\s+'))
+        .where((p) => p.isNotEmpty)
+        .toList();
     if (parts.isEmpty) return 'AD';
     if (parts.length == 1) return parts.first.substring(0, 1).toUpperCase();
     return '${parts.first[0]}${parts.last[0]}'.toUpperCase();
@@ -143,7 +147,8 @@ class AdminShellScaffold extends StatelessWidget {
                     fontWeight: FontWeight.w500,
                     fontSize: 13,
                   ),
-                  onDestinationSelected: (i) => _onDestinationSelected(context, i),
+                  onDestinationSelected: (i) =>
+                      _onDestinationSelected(context, i),
                   leading: Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 12,
@@ -227,7 +232,8 @@ class AdminShellScaffold extends StatelessWidget {
                     ),
                   ],
                 ),
-                const VerticalDivider(width: 1, color: AppTheme.adminCardBorder),
+                const VerticalDivider(
+                    width: 1, color: AppTheme.adminCardBorder),
                 Expanded(
                   child: Column(
                     children: [
@@ -314,7 +320,8 @@ class _AdminBadgePill extends StatelessWidget {
   }
 }
 
-class _AdminMobileAppBar extends StatelessWidget implements PreferredSizeWidget {
+class _AdminMobileAppBar extends StatelessWidget
+    implements PreferredSizeWidget {
   const _AdminMobileAppBar();
 
   @override
@@ -372,7 +379,8 @@ class _AdminDesktopTopBar extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(Icons.shield_outlined, size: 18, color: AppTheme.adminIndigo),
+          const Icon(Icons.shield_outlined,
+              size: 18, color: AppTheme.adminIndigo),
           const SizedBox(width: 8),
           const Text(
             'Console d’administration • Burkina Faso',
@@ -432,7 +440,8 @@ class _AdminNotificationBell extends StatelessWidget {
                 ListTile(
                   leading: const CircleAvatar(
                     backgroundColor: AppTheme.adminAmberSoft,
-                    child: Icon(Icons.handyman_rounded, color: AppTheme.adminOrange),
+                    child: Icon(Icons.handyman_rounded,
+                        color: AppTheme.adminOrange),
                   ),
                   title: Text('$pendingCount artisan(s) à vérifier'),
                   subtitle: const Text('Dossiers en attente de validation'),
@@ -445,7 +454,8 @@ class _AdminNotificationBell extends StatelessWidget {
                 ListTile(
                   leading: const CircleAvatar(
                     backgroundColor: AppTheme.adminDangerSoft,
-                    child: Icon(Icons.flag_rounded, color: AppTheme.adminDanger),
+                    child:
+                        Icon(Icons.flag_rounded, color: AppTheme.adminDanger),
                   ),
                   title: Text('$pendingReports signalement(s) ouverts'),
                   subtitle: const Text('Demandes, avis ou messages signalés'),
@@ -557,7 +567,8 @@ class AdminLoadingView extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               message,
-              style: const TextStyle(color: AppTheme.textSecondary, fontSize: 14),
+              style:
+                  const TextStyle(color: AppTheme.textSecondary, fontSize: 14),
             ),
           ],
         ),
@@ -613,7 +624,8 @@ class AdminEmptyView extends StatelessWidget {
             Text(
               subtitle,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 13, color: AppTheme.textSecondary),
+              style:
+                  const TextStyle(fontSize: 13, color: AppTheme.textSecondary),
             ),
             if (actionLabel != null && onAction != null) ...[
               const SizedBox(height: 18),
@@ -675,7 +687,8 @@ class AdminErrorView extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 13, color: AppTheme.textSecondary),
+              style:
+                  const TextStyle(fontSize: 13, color: AppTheme.textSecondary),
             ),
             const SizedBox(height: 18),
             ElevatedButton.icon(

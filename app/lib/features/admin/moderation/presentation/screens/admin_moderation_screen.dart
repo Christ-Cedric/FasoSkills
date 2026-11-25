@@ -21,7 +21,8 @@ class _AdminModerationScreenState extends State<AdminModerationScreen> {
     super.initState();
     final bloc = context.read<ModerationBloc>();
     if (bloc.state is ModerationInitial) {
-      bloc.add(const LoadReports(targetType: 'request', statusFilter: 'pending'));
+      bloc.add(
+          const LoadReports(targetType: 'request', statusFilter: 'pending'));
     }
   }
 
@@ -296,8 +297,7 @@ class _AdminModerationScreenState extends State<AdminModerationScreen> {
                   onDismiss: () => context
                       .read<ModerationBloc>()
                       .add(DismissReportRequested(report.id)),
-                  onDeleteContent: () =>
-                      _confirmDeleteContent(context, report),
+                  onDeleteContent: () => _confirmDeleteContent(context, report),
                 ),
               ),
             )
@@ -319,8 +319,7 @@ class _AdminModerationScreenState extends State<AdminModerationScreen> {
                   onDismiss: () => context
                       .read<ModerationBloc>()
                       .add(DismissReportRequested(report.id)),
-                  onDeleteContent: () =>
-                      _confirmDeleteContent(context, report),
+                  onDeleteContent: () => _confirmDeleteContent(context, report),
                 );
               },
             ),
@@ -550,8 +549,9 @@ class _ModerationLogsSheet extends StatelessWidget {
       builder: (_, scrollController) {
         return BlocBuilder<ModerationBloc, ModerationState>(
           builder: (context, state) {
-            final logs =
-                state is ModerationLoaded ? state.logs : const <ModerationLogEntry>[];
+            final logs = state is ModerationLoaded
+                ? state.logs
+                : const <ModerationLogEntry>[];
             final isLoading = state is ModerationLoaded && state.isLoadingLogs;
 
             return Column(

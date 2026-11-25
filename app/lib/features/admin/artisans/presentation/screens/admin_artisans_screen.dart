@@ -95,7 +95,8 @@ class _AdminArtisansScreenState extends State<AdminArtisansScreen> {
                     fillColor: Colors.white,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(14),
-                      borderSide: const BorderSide(color: AppTheme.adminCardBorder),
+                      borderSide:
+                          const BorderSide(color: AppTheme.adminCardBorder),
                     ),
                   ),
                 ),
@@ -274,7 +275,8 @@ class _ArtisanStatusTabs extends StatelessWidget {
                 duration: const Duration(milliseconds: 180),
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
-                  color: isSelected ? AppTheme.primaryColor : Colors.transparent,
+                  color:
+                      isSelected ? AppTheme.primaryColor : Colors.transparent,
                   borderRadius: BorderRadius.circular(9),
                 ),
                 child: Text(

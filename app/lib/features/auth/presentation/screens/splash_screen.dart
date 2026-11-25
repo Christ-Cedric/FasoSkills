@@ -10,7 +10,8 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnim;
   late Animation<double> _fadeAnim;
@@ -69,7 +70,8 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                         ),
                       ],
                     ),
-                    child: const Icon(Icons.handyman_rounded, size: 48, color: Colors.white),
+                    child: const Icon(Icons.handyman_rounded,
+                        size: 48, color: Colors.white),
                   ),
                   const SizedBox(height: 24),
                   const Text(
@@ -84,7 +86,8 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                   const SizedBox(height: 8),
                   const Text(
                     'Trouvez les meilleurs artisans au Burkina Faso',
-                    style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
+                    style:
+                        TextStyle(fontSize: 14, color: AppTheme.textSecondary),
                   ),
                   const SizedBox(height: 36),
                   const CircularProgressIndicator(color: AppTheme.primaryColor),

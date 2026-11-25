@@ -34,12 +34,15 @@ class ChatMessage extends Equatable {
       senderName: senderName,
       text: json['text'] ?? '',
       isRead: json['isRead'] ?? false,
-      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt']) : null,
+      createdAt: json['createdAt'] != null
+          ? DateTime.tryParse(json['createdAt'])
+          : null,
     );
   }
 
   @override
-  List<Object?> get props => [id, conversationId, senderId, text, isRead, createdAt];
+  List<Object?> get props =>
+      [id, conversationId, senderId, text, isRead, createdAt];
 }
 
 class ChatConversation extends Equatable {

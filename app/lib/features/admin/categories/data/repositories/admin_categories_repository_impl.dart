@@ -46,7 +46,8 @@ class AdminCategoriesRepositoryImpl implements AdminCategoriesRepository {
       }
 
       final res = await _apiClient.post('/categories', body: body);
-      return Success(AdminCategory.fromJson(res['data'] as Map<String, dynamic>));
+      return Success(
+          AdminCategory.fromJson(res['data'] as Map<String, dynamic>));
     } on Failure catch (f) {
       return FailureResult(f);
     } catch (e) {
@@ -70,7 +71,8 @@ class AdminCategoriesRepositoryImpl implements AdminCategoriesRepository {
       if (isActive != null) body['isActive'] = isActive;
 
       final res = await _apiClient.patch('/categories/$id', body: body);
-      return Success(AdminCategory.fromJson(res['data'] as Map<String, dynamic>));
+      return Success(
+          AdminCategory.fromJson(res['data'] as Map<String, dynamic>));
     } on Failure catch (f) {
       return FailureResult(f);
     } catch (e) {

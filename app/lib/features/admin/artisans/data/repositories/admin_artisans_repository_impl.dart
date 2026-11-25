@@ -52,7 +52,8 @@ class AdminArtisansRepositoryImpl implements AdminArtisansRepository {
   Future<Result<AdminArtisan>> getArtisanById(String id) async {
     try {
       final res = await _apiClient.get('/admin/artisans/$id');
-      return Success(AdminArtisan.fromJson(res['data'] as Map<String, dynamic>));
+      return Success(
+          AdminArtisan.fromJson(res['data'] as Map<String, dynamic>));
     } on Failure catch (f) {
       return FailureResult(f);
     } catch (e) {
@@ -64,7 +65,8 @@ class AdminArtisansRepositoryImpl implements AdminArtisansRepository {
   Future<Result<AdminArtisan>> verifyArtisan(String id) async {
     try {
       final res = await _apiClient.post('/artisans/$id/verify');
-      return Success(AdminArtisan.fromJson(res['data'] as Map<String, dynamic>));
+      return Success(
+          AdminArtisan.fromJson(res['data'] as Map<String, dynamic>));
     } on Failure catch (f) {
       return FailureResult(f);
     } catch (e) {
@@ -79,7 +81,8 @@ class AdminArtisansRepositoryImpl implements AdminArtisansRepository {
         '/admin/artisans/$id/reject',
         body: {'reason': reason},
       );
-      return Success(AdminArtisan.fromJson(res['data'] as Map<String, dynamic>));
+      return Success(
+          AdminArtisan.fromJson(res['data'] as Map<String, dynamic>));
     } on Failure catch (f) {
       return FailureResult(f);
     } catch (e) {

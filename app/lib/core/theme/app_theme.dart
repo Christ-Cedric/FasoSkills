@@ -97,12 +97,14 @@ class AppTheme {
   static Color statusBackground(Color status) => status.withValues(alpha: 0.12);
 
   static List<BoxShadow> get cardShadow => [
-    BoxShadow(color: shadowLight, blurRadius: 16, offset: const Offset(0, 4)),
-  ];
+        BoxShadow(
+            color: shadowLight, blurRadius: 16, offset: const Offset(0, 4)),
+      ];
 
   static List<BoxShadow> get elevatedShadow => [
-    BoxShadow(color: shadowMedium, blurRadius: 24, offset: const Offset(0, 8)),
-  ];
+        BoxShadow(
+            color: shadowMedium, blurRadius: 24, offset: const Offset(0, 8)),
+      ];
 
   // ── Rayons & espacements ────────────────────────────────────────────────
   static const double radiusSm = 8;
@@ -162,7 +164,6 @@ class AppTheme {
           TargetPlatform.windows: CupertinoPageTransitionsBuilder(),
         },
       ),
-
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
         foregroundColor: textColor,
@@ -176,7 +177,6 @@ class AppTheme {
           fontWeight: FontWeight.bold,
         ),
       ),
-
       textTheme: const TextTheme(
         headlineLarge: TextStyle(color: textColor, fontWeight: FontWeight.bold),
         headlineMedium: TextStyle(
@@ -191,7 +191,6 @@ class AppTheme {
         bodySmall: TextStyle(color: textSecondary),
         labelLarge: TextStyle(color: textColor, fontWeight: FontWeight.w600),
       ),
-
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: primaryColor,
@@ -204,7 +203,6 @@ class AppTheme {
           textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
       ),
-
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: primaryColor,
@@ -215,14 +213,12 @@ class AppTheme {
           ),
         ),
       ),
-
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: primaryColor,
           textStyle: const TextStyle(fontWeight: FontWeight.w600),
         ),
       ),
-
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: surfaceColor,
@@ -256,7 +252,6 @@ class AppTheme {
           vertical: 16,
         ),
       ),
-
       cardTheme: CardThemeData(
         color: surfaceColor,
         elevation: 0,
@@ -266,7 +261,6 @@ class AppTheme {
         ),
         margin: const EdgeInsets.only(bottom: 12),
       ),
-
       chipTheme: ChipThemeData(
         backgroundColor: inputFillColor,
         selectedColor: primaryColor,
@@ -280,7 +274,6 @@ class AppTheme {
         ),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       ),
-
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: surfaceColor,
         selectedItemColor: primaryColor,
@@ -293,7 +286,6 @@ class AppTheme {
         ),
         unselectedLabelStyle: TextStyle(fontSize: 12),
       ),
-
       dialogTheme: DialogThemeData(
         backgroundColor: surfaceColor,
         elevation: 8,
@@ -307,7 +299,6 @@ class AppTheme {
         ),
         contentTextStyle: const TextStyle(color: textSecondary, fontSize: 14),
       ),
-
       snackBarTheme: SnackBarThemeData(
         backgroundColor: textColor,
         contentTextStyle: const TextStyle(color: onPrimary),
@@ -316,24 +307,19 @@ class AppTheme {
           borderRadius: BorderRadius.circular(radiusMd),
         ),
       ),
-
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
         backgroundColor: primaryColor,
         foregroundColor: onPrimary,
         elevation: 4,
       ),
-
       dividerTheme: const DividerThemeData(color: borderColor, thickness: 1),
-
       progressIndicatorTheme: const ProgressIndicatorThemeData(
         color: primaryColor,
       ),
-
       listTileTheme: const ListTileThemeData(
         iconColor: textColor,
         textColor: textColor,
       ),
-
       iconTheme: const IconThemeData(color: textSecondary),
     );
   }

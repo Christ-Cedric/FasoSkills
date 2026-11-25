@@ -37,7 +37,10 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Text(
               user != null ? 'Bonjour, ${user.fullName}' : 'FasoSkills',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textColor),
+              style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.textColor),
             ),
             const Text(
               'Trouvez un artisan qualifié près de chez vous',
@@ -93,12 +96,16 @@ class _HomeScreenState extends State<HomeScreen> {
                           children: const [
                             Text(
                               'Besoin d’un dépannage rapide ?',
-                              style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold),
                             ),
                             SizedBox(height: 4),
                             Text(
                               'Plombiers, électriciens, menuisiers vérifiés',
-                              style: TextStyle(color: Colors.white70, fontSize: 13),
+                              style: TextStyle(
+                                  color: Colors.white70, fontSize: 13),
                             ),
                           ],
                         ),
@@ -109,7 +116,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           color: Colors.white.withValues(alpha: 0.2),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.build_circle, color: Colors.white, size: 28),
+                        child: const Icon(Icons.build_circle,
+                            color: Colors.white, size: 28),
                       ),
                     ],
                   ),
@@ -123,7 +131,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: const [
                   Text(
                     'Catégories de services',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textColor),
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.textColor),
                   ),
                 ],
               ),
@@ -133,9 +144,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   children: [
-                    _buildCategoryChip('Tous', Icons.dashboard, isSelected: true),
+                    _buildCategoryChip('Tous', Icons.dashboard,
+                        isSelected: true),
                     _buildCategoryChip('Plomberie', Icons.plumbing),
-                    _buildCategoryChip('Électricité', Icons.electrical_services),
+                    _buildCategoryChip(
+                        'Électricité', Icons.electrical_services),
                     _buildCategoryChip('Menuiserie', Icons.carpenter),
                     _buildCategoryChip('Maçonnerie', Icons.foundation),
                     _buildCategoryChip('Peinture', Icons.format_paint),
@@ -150,7 +163,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   const Text(
                     'Artisans disponibles',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textColor),
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.textColor),
                   ),
                 ],
               ),
@@ -161,7 +177,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   if (state is ArtisanListLoading) {
                     return const Padding(
                       padding: EdgeInsets.symmetric(vertical: 40.0),
-                      child: Center(child: CircularProgressIndicator(color: AppTheme.primaryColor)),
+                      child: Center(
+                          child: CircularProgressIndicator(
+                              color: AppTheme.primaryColor)),
                     );
                   }
 
@@ -172,11 +190,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       alignment: Alignment.center,
                       child: Column(
                         children: [
-                          Icon(Icons.person_search_outlined, size: 64, color: Colors.grey.shade400),
+                          Icon(Icons.person_search_outlined,
+                              size: 64, color: Colors.grey.shade400),
                           const SizedBox(height: 12),
                           Text(
                             state.message,
-                            style: const TextStyle(fontSize: 16, color: AppTheme.textSecondary),
+                            style: const TextStyle(
+                                fontSize: 16, color: AppTheme.textSecondary),
                           ),
                         ],
                       ),
@@ -194,21 +214,27 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       child: Column(
                         children: [
-                          const Icon(Icons.error_outline, color: AppTheme.destructiveColor, size: 40),
+                          const Icon(Icons.error_outline,
+                              color: AppTheme.destructiveColor, size: 40),
                           const SizedBox(height: 8),
                           Text(
                             state.message,
                             textAlign: TextAlign.center,
-                            style: const TextStyle(color: AppTheme.destructiveColor, fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                                color: AppTheme.destructiveColor,
+                                fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 12),
                           ElevatedButton.icon(
                             onPressed: () {
-                              context.read<ArtisanListBloc>().add(const LoadArtisans());
+                              context
+                                  .read<ArtisanListBloc>()
+                                  .add(const LoadArtisans());
                             },
                             icon: const Icon(Icons.refresh),
                             label: const Text('Réessayer'),
-                            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primaryColor),
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor: AppTheme.primaryColor),
                           ),
                         ],
                       ),
@@ -225,11 +251,14 @@ class _HomeScreenState extends State<HomeScreen> {
                             padding: const EdgeInsets.only(bottom: 8.0),
                             child: Row(
                               children: const [
-                                Icon(Icons.offline_pin, size: 14, color: AppTheme.accentColor),
+                                Icon(Icons.offline_pin,
+                                    size: 14, color: AppTheme.accentColor),
                                 SizedBox(width: 4),
                                 Text(
                                   'Données en cache hors-ligne',
-                                  style: TextStyle(fontSize: 12, color: AppTheme.accentColor),
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      color: AppTheme.accentColor),
                                 ),
                               ],
                             ),
@@ -238,7 +267,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           itemCount: state.artisans.length,
-                          separatorBuilder: (_, __) => const SizedBox(height: 12),
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(height: 12),
                           itemBuilder: (context, index) {
                             final artisan = state.artisans[index];
                             return _buildArtisanCard(context, artisan);
@@ -259,7 +289,8 @@ class _HomeScreenState extends State<HomeScreen> {
         onPressed: () => context.push('/request-quote'),
         backgroundColor: AppTheme.primaryColor,
         icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text('Créer une demande', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        label: const Text('Créer une demande',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
@@ -270,21 +301,32 @@ class _HomeScreenState extends State<HomeScreen> {
           if (idx == 3) context.push('/messages');
         },
         destinations: const [
-          NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Accueil'),
+          NavigationDestination(
+              icon: Icon(Icons.home_outlined),
+              selectedIcon: Icon(Icons.home),
+              label: 'Accueil'),
           NavigationDestination(icon: Icon(Icons.search), label: 'Recherche'),
-          NavigationDestination(icon: Icon(Icons.assignment_outlined), selectedIcon: Icon(Icons.assignment), label: 'Demandes'),
-          NavigationDestination(icon: Icon(Icons.chat_bubble_outline), selectedIcon: Icon(Icons.chat_bubble), label: 'Messages'),
+          NavigationDestination(
+              icon: Icon(Icons.assignment_outlined),
+              selectedIcon: Icon(Icons.assignment),
+              label: 'Demandes'),
+          NavigationDestination(
+              icon: Icon(Icons.chat_bubble_outline),
+              selectedIcon: Icon(Icons.chat_bubble),
+              label: 'Messages'),
         ],
       ),
     );
   }
 
-  Widget _buildCategoryChip(String label, IconData icon, {bool isSelected = false}) {
+  Widget _buildCategoryChip(String label, IconData icon,
+      {bool isSelected = false}) {
     return Container(
       margin: const EdgeInsets.only(right: 8),
       child: FilterChip(
         selected: isSelected,
-        avatar: Icon(icon, size: 16, color: isSelected ? Colors.white : AppTheme.primaryColor),
+        avatar: Icon(icon,
+            size: 16, color: isSelected ? Colors.white : AppTheme.primaryColor),
         label: Text(label),
         labelStyle: TextStyle(
           color: isSelected ? Colors.white : AppTheme.textColor,
@@ -294,7 +336,9 @@ class _HomeScreenState extends State<HomeScreen> {
         selectedColor: AppTheme.primaryColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         onSelected: (_) {
-          context.read<ArtisanListBloc>().add(LoadArtisans(categoryId: label == 'Tous' ? null : label));
+          context
+              .read<ArtisanListBloc>()
+              .add(LoadArtisans(categoryId: label == 'Tous' ? null : label));
         },
       ),
     );
@@ -316,8 +360,13 @@ class _HomeScreenState extends State<HomeScreen> {
               radius: 28,
               backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
               child: Text(
-                artisan.fullName.isNotEmpty ? artisan.fullName[0].toUpperCase() : 'A',
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.primaryColor),
+                artisan.fullName.isNotEmpty
+                    ? artisan.fullName[0].toUpperCase()
+                    : 'A',
+                style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.primaryColor),
               ),
             ),
             const SizedBox(width: 14),
@@ -330,36 +379,49 @@ class _HomeScreenState extends State<HomeScreen> {
                       Flexible(
                         child: Text(
                           artisan.fullName,
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.textColor),
+                          style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.textColor),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       if (artisan.isVerified) ...[
                         const SizedBox(width: 4),
-                        const Icon(Icons.verified, size: 16, color: AppTheme.primaryColor),
+                        const Icon(Icons.verified,
+                            size: 16, color: AppTheme.primaryColor),
                       ],
                     ],
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    artisan.specialty.isNotEmpty ? artisan.specialty : (artisan.category?.name ?? 'Artisan'),
-                    style: const TextStyle(fontSize: 14, color: AppTheme.primaryColor, fontWeight: FontWeight.w500),
+                    artisan.specialty.isNotEmpty
+                        ? artisan.specialty
+                        : (artisan.category?.name ?? 'Artisan'),
+                    style: const TextStyle(
+                        fontSize: 14,
+                        color: AppTheme.primaryColor,
+                        fontWeight: FontWeight.w500),
                   ),
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      const Icon(Icons.star, size: 16, color: AppTheme.accentColor),
+                      const Icon(Icons.star,
+                          size: 16, color: AppTheme.accentColor),
                       const SizedBox(width: 4),
                       Text(
                         '${artisan.rating} (${artisan.reviewsCount} avis)',
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(width: 12),
-                      const Icon(Icons.location_on_outlined, size: 16, color: AppTheme.textMuted),
+                      const Icon(Icons.location_on_outlined,
+                          size: 16, color: AppTheme.textMuted),
                       const SizedBox(width: 2),
                       Text(
                         artisan.city,
-                        style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+                        style: const TextStyle(
+                            fontSize: 12, color: AppTheme.textSecondary),
                       ),
                     ],
                   ),

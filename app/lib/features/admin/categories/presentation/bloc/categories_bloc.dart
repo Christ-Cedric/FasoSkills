@@ -212,8 +212,10 @@ class CategoriesBloc extends Bloc<CategoriesEvent, CategoriesState> {
 
     result.when(
       success: (created) {
-        final updated = [...previousList, created]
-          ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+        final updated = [
+          ...previousList,
+          created
+        ]..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
         emit(
           CategoriesLoaded(
             categories: updated,
@@ -269,7 +271,8 @@ class CategoriesBloc extends Bloc<CategoriesEvent, CategoriesState> {
         final updatedList = current.categories
             .map((c) => c.id == updatedCat.id ? updatedCat : c)
             .toList()
-          ..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+          ..sort(
+              (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
         emit(
           CategoriesLoaded(
             categories: updatedList,

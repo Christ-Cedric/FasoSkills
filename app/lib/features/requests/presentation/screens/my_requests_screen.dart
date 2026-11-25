@@ -42,7 +42,8 @@ class _MyRequestsScreenState extends State<MyRequestsScreen> {
         builder: (context, state) {
           // Loading state (F7)
           if (state is RequestLoading) {
-            return const Center(child: CircularProgressIndicator(color: AppTheme.primaryColor));
+            return const Center(
+                child: CircularProgressIndicator(color: AppTheme.primaryColor));
           }
 
           // Error state with retry (F7)
@@ -53,12 +54,14 @@ class _MyRequestsScreenState extends State<MyRequestsScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.error_outline, size: 48, color: AppTheme.destructiveColor),
+                    const Icon(Icons.error_outline,
+                        size: 48, color: AppTheme.destructiveColor),
                     const SizedBox(height: 12),
                     Text(state.message, textAlign: TextAlign.center),
                     const SizedBox(height: 16),
                     ElevatedButton(
-                      onPressed: () => context.read<RequestBloc>().add(LoadMyRequests()),
+                      onPressed: () =>
+                          context.read<RequestBloc>().add(LoadMyRequests()),
                       child: const Text('Réessayer'),
                     ),
                   ],
@@ -73,9 +76,11 @@ class _MyRequestsScreenState extends State<MyRequestsScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.inbox_outlined, size: 64, color: Colors.grey.shade400),
+                  Icon(Icons.inbox_outlined,
+                      size: 64, color: Colors.grey.shade400),
                   const SizedBox(height: 12),
-                  Text(state.message, style: const TextStyle(color: AppTheme.textSecondary)),
+                  Text(state.message,
+                      style: const TextStyle(color: AppTheme.textSecondary)),
                 ],
               ),
             );
@@ -148,18 +153,23 @@ class _MyRequestsScreenState extends State<MyRequestsScreen> {
                 Expanded(
                   child: Text(
                     request.title,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: statusColor.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
                     statusLabel,
-                    style: TextStyle(color: statusColor, fontWeight: FontWeight.bold, fontSize: 12),
+                    style: TextStyle(
+                        color: statusColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12),
                   ),
                 ),
               ],
@@ -169,7 +179,8 @@ class _MyRequestsScreenState extends State<MyRequestsScreen> {
               request.description,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(color: AppTheme.textSecondary, fontSize: 14),
+              style:
+                  const TextStyle(color: AppTheme.textSecondary, fontSize: 14),
             ),
             const SizedBox(height: 12),
             Row(
@@ -177,19 +188,25 @@ class _MyRequestsScreenState extends State<MyRequestsScreen> {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.location_on_outlined, size: 16, color: AppTheme.textMuted),
+                    const Icon(Icons.location_on_outlined,
+                        size: 16, color: AppTheme.textMuted),
                     const SizedBox(width: 4),
-                    Text(request.city, style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary)),
+                    Text(request.city,
+                        style: const TextStyle(
+                            fontSize: 12, color: AppTheme.textSecondary)),
                   ],
                 ),
                 // Optimistic cancel button (Requirement F8)
                 if (request.status == 'pending')
                   TextButton.icon(
-                    style: TextButton.styleFrom(foregroundColor: AppTheme.destructiveColor),
+                    style: TextButton.styleFrom(
+                        foregroundColor: AppTheme.destructiveColor),
                     icon: const Icon(Icons.cancel_outlined, size: 16),
                     label: const Text('Annuler'),
                     onPressed: () {
-                      context.read<RequestBloc>().add(CancelRequestOptimistic(request.id));
+                      context
+                          .read<RequestBloc>()
+                          .add(CancelRequestOptimistic(request.id));
                     },
                   ),
               ],

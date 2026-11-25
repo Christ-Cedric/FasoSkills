@@ -16,7 +16,8 @@ class AuthRepositoryImpl implements AuthRepository {
         _storage = storage ?? SecureStorageService();
 
   @override
-  Future<Result<User>> login({required String email, required String password}) async {
+  Future<Result<User>> login(
+      {required String email, required String password}) async {
     try {
       final res = await _apiClient.post(
         '/auth/login',

@@ -41,7 +41,9 @@ class _SearchScreenState extends State<SearchScreen> {
               icon: const Icon(Icons.clear),
               onPressed: () {
                 _searchController.clear();
-                context.read<ArtisanListBloc>().add(const SearchQueryChanged(''));
+                context
+                    .read<ArtisanListBloc>()
+                    .add(const SearchQueryChanged(''));
               },
             ),
         ],
@@ -49,12 +51,14 @@ class _SearchScreenState extends State<SearchScreen> {
       body: BlocBuilder<ArtisanListBloc, ArtisanListState>(
         builder: (context, state) {
           if (state is ArtisanListLoading) {
-            return const Center(child: CircularProgressIndicator(color: AppTheme.primaryColor));
+            return const Center(
+                child: CircularProgressIndicator(color: AppTheme.primaryColor));
           }
 
           if (state is ArtisanListEmpty) {
             return Center(
-              child: Text(state.message, style: const TextStyle(color: AppTheme.textSecondary)),
+              child: Text(state.message,
+                  style: const TextStyle(color: AppTheme.textSecondary)),
             );
           }
 
@@ -66,15 +70,18 @@ class _SearchScreenState extends State<SearchScreen> {
                 final artisan = state.artisans[index];
                 return ListTile(
                   leading: CircleAvatar(
-                    backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
+                    backgroundColor:
+                        AppTheme.primaryColor.withValues(alpha: 0.1),
                     child: Text(artisan.fullName[0].toUpperCase()),
                   ),
-                  title: Text(artisan.fullName, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  title: Text(artisan.fullName,
+                      style: const TextStyle(fontWeight: FontWeight.bold)),
                   subtitle: Text('${artisan.specialty} • ${artisan.city}'),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.star, size: 16, color: AppTheme.accentColor),
+                      const Icon(Icons.star,
+                          size: 16, color: AppTheme.accentColor),
                       const SizedBox(width: 4),
                       Text('${artisan.rating}'),
                     ],

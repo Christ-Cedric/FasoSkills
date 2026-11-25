@@ -42,7 +42,8 @@ class RegisterSubmitted extends AuthEvent {
   });
 
   @override
-  List<Object?> get props => [email, password, fullName, phone, role, specialty, city, categoryId];
+  List<Object?> get props =>
+      [email, password, fullName, phone, role, specialty, city, categoryId];
 }
 
 class LogoutRequested extends AuthEvent {}
@@ -88,7 +89,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<LogoutRequested>(_onLogoutRequested);
   }
 
-  Future<void> _onCheckAuthStatus(CheckAuthStatus event, Emitter<AuthState> emit) async {
+  Future<void> _onCheckAuthStatus(
+      CheckAuthStatus event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     final hasToken = await _authRepository.hasValidToken();
     if (!hasToken) {
@@ -103,7 +105,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-  Future<void> _onLoginSubmitted(LoginSubmitted event, Emitter<AuthState> emit) async {
+  Future<void> _onLoginSubmitted(
+      LoginSubmitted event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     final result = await _authRepository.login(
       email: event.email,
@@ -112,11 +115,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     result.when(
       success: (user) => emit(Authenticated(user)),
-      failure: (failure) => emit(AuthFailureState(failure.message, details: failure.details)),
+      failure: (failure) =>
+          emit(AuthFailureState(failure.message, details: failure.details)),
     );
   }
 
-  Future<void> _onRegisterSubmitted(RegisterSubmitted event, Emitter<AuthState> emit) async {
+  Future<void> _onRegisterSubmitted(
+      RegisterSubmitted event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     final result = await _authRepository.register(
       email: event.email,
@@ -131,11 +136,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     result.when(
       success: (user) => emit(Authenticated(user)),
-      failure: (failure) => emit(AuthFailureState(failure.message, details: failure.details)),
+      failure: (failure) =>
+          emit(AuthFailureState(failure.message, details: failure.details)),
     );
   }
 
-  Future<void> _onLogoutRequested(LogoutRequested event, Emitter<AuthState> emit) async {
+  Future<void> _onLogoutRequested(
+      LogoutRequested event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     await _authRepository.logout();
     emit(Unauthenticated());
