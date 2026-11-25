@@ -9,6 +9,10 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>FasoSkills a besoin d'accéder à votre appareil photo pour ajouter des photos de chantiers ou de profil.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>FasoSkills a besoin d'accéder à vos photos pour sélectionner des images de chantiers.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
