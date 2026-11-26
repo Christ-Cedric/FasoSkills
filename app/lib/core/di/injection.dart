@@ -37,6 +37,11 @@ import '../../features/admin/moderation/domain/repositories/moderation_repositor
 import '../../features/admin/moderation/data/repositories/moderation_repository_impl.dart';
 import '../../features/admin/moderation/presentation/bloc/moderation_bloc.dart';
 
+import '../../features/artisan_space/domain/repositories/artisan_space_repository.dart';
+import '../../features/artisan_space/data/repositories/artisan_space_repository_impl.dart';
+import '../../features/artisan_space/presentation/bloc/artisan_jobs_bloc.dart';
+import '../../features/artisan_space/presentation/bloc/artisan_profile_bloc.dart';
+
 final getIt = GetIt.instance;
 
 Future<void> setupDependencyInjection() async {
@@ -100,6 +105,14 @@ Future<void> setupDependencyInjection() async {
     () => ModerationRepositoryImpl(apiClient: getIt<ApiClient>()),
   );
 
+  // Artisan space repository
+  getIt.registerLazySingleton<ArtisanSpaceRepository>(
+    () => ArtisanSpaceRepositoryImpl(
+      apiClient: getIt<ApiClient>(),
+      cacheService: getIt<CacheService>(),
+    ),
+  );
+
   // 3. BLoCs / Cubits (State management - F2)
   getIt.registerFactory<AuthBloc>(
     () => AuthBloc(authRepository: getIt<AuthRepository>()),
@@ -139,5 +152,14 @@ Future<void> setupDependencyInjection() async {
 
   getIt.registerFactory<ModerationBloc>(
     () => ModerationBloc(repository: getIt<ModerationRepository>()),
+  );
+
+  // Artisan space BLoCs
+  getIt.registerFactory<ArtisanJobsBloc>(
+    () => ArtisanJobsBloc(repository: getIt<ArtisanSpaceRepository>()),
+  );
+
+  getIt.registerFactory<ArtisanProfileBloc>(
+    () => ArtisanProfileBloc(repository: getIt<ArtisanSpaceRepository>()),
   );
 }
