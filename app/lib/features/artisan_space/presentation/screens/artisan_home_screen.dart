@@ -301,9 +301,8 @@ class _ArtisanHomeScreenState extends State<ArtisanHomeScreen> {
                           ? Icons.verified_rounded
                           : Icons.hourglass_top_rounded,
                       size: 13,
-                      color: isVerified
-                          ? const Color(0xFF6EE7B7)
-                          : Colors.white70,
+                      color:
+                          isVerified ? const Color(0xFF6EE7B7) : Colors.white70,
                     ),
                     const SizedBox(width: 4),
                     Text(
@@ -471,7 +470,8 @@ class _ArtisanHomeScreenState extends State<ArtisanHomeScreen> {
             },
             decoration: InputDecoration(
               hintText: 'Rechercher une demande (plomberie, quartier...)',
-              hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+              hintStyle:
+                  const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
               prefixIcon:
                   const Icon(Icons.search_rounded, color: Color(0xFF64748B)),
               filled: true,

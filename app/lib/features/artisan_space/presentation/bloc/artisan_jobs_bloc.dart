@@ -314,9 +314,8 @@ class ArtisanJobsBloc extends Bloc<ArtisanJobsEvent, ArtisanJobsState> {
 
     result.when(
       success: (updated) {
-        final synced = optimistic
-            .map((r) => r.id == updated.id ? updated : r)
-            .toList();
+        final synced =
+            optimistic.map((r) => r.id == updated.id ? updated : r).toList();
         emit(loaded.copyWith(
           requests: synced,
           notificationMessage: 'Statut confirmé (${updated.status})',

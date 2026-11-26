@@ -67,8 +67,9 @@ class _ArtisanProfileScreenState extends State<ArtisanProfileScreen> {
                   }
                 },
                 builder: (context, profState) {
-                  final artisan =
-                      profState is ArtisanProfileLoaded ? profState.artisan : null;
+                  final artisan = profState is ArtisanProfileLoaded
+                      ? profState.artisan
+                      : null;
 
                   return SingleChildScrollView(
                     padding: const EdgeInsets.only(bottom: 110),
@@ -96,7 +97,8 @@ class _ArtisanProfileScreenState extends State<ArtisanProfileScreen> {
                               color: Color(0xFF2563EB),
                             ),
                           ),
-                        _buildActionsList(context, artisan, user?.artisanProfileId),
+                        _buildActionsList(
+                            context, artisan, user?.artisanProfileId),
                       ],
                     ),
                   );
@@ -467,8 +469,7 @@ class _ArtisanProfileScreenState extends State<ArtisanProfileScreen> {
     String artisanId,
     Artisan? artisan,
   ) {
-    final specialtyCtrl =
-        TextEditingController(text: artisan?.specialty ?? '');
+    final specialtyCtrl = TextEditingController(text: artisan?.specialty ?? '');
     final cityCtrl =
         TextEditingController(text: artisan?.city ?? 'Ouagadougou');
     final expCtrl = TextEditingController(
