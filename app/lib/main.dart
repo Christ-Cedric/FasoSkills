@@ -12,6 +12,8 @@ import 'features/admin/dashboard/presentation/bloc/admin_dashboard_bloc.dart';
 import 'features/admin/artisans/presentation/bloc/admin_artisans_bloc.dart';
 import 'features/admin/categories/presentation/bloc/categories_bloc.dart';
 import 'features/admin/moderation/presentation/bloc/moderation_bloc.dart';
+import 'features/artisan_space/presentation/bloc/artisan_jobs_bloc.dart';
+import 'features/artisan_space/presentation/bloc/artisan_profile_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -60,6 +62,10 @@ class _FasoSkillsAppState extends State<FasoSkillsApp> {
         ),
         BlocProvider<CategoriesBloc>(create: (_) => getIt<CategoriesBloc>()),
         BlocProvider<ModerationBloc>(create: (_) => getIt<ModerationBloc>()),
+        BlocProvider<ArtisanJobsBloc>(create: (_) => getIt<ArtisanJobsBloc>()),
+        BlocProvider<ArtisanProfileBloc>(
+          create: (_) => getIt<ArtisanProfileBloc>(),
+        ),
       ],
       child: MaterialApp.router(
         title: 'FasoSkills',

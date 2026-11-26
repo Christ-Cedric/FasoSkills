@@ -24,6 +24,11 @@ import '../../features/admin/moderation/presentation/screens/admin_moderation_sc
 import '../../features/admin/profile/presentation/screens/admin_profile_screen.dart';
 import '../../features/chat/presentation/screens/contact_screen.dart';
 import '../../features/notifications/presentation/screens/notifications_screen.dart';
+import '../../features/requests/domain/models/service_request.dart';
+import '../../features/artisan_space/presentation/screens/artisan_home_screen.dart';
+import '../../features/artisan_space/presentation/screens/artisan_missions_screen.dart';
+import '../../features/artisan_space/presentation/screens/artisan_profile_screen.dart';
+import '../../features/artisan_space/presentation/screens/artisan_request_detail_screen.dart';
 
 class AppRouter {
   final AuthBloc authBloc;
@@ -38,6 +43,7 @@ class AppRouter {
       final loc = state.matchedLocation;
       final isAuth = authState is Authenticated;
       final isAdmin = isAuth && authState.user.isAdmin;
+      final isArtisan = isAuth && authState.user.isArtisan;
       final isAuthScreen = loc == '/login' || loc == '/register';
       final isSplash = loc == '/splash';
 
@@ -59,17 +65,33 @@ class AppRouter {
 
       // Once the session check is complete, leave splash and auth screens.
       if (isAuthScreen || isSplash) {
-        return isAdmin ? '/admin/dashboard' : '/home';
+        if (isAdmin) return '/admin/dashboard';
+        if (isArtisan) return '/artisan/home';
+        return '/home';
       }
 
       // Protect the administration area from non-admin accounts.
       if (loc.startsWith('/admin') && !isAdmin) {
-        return '/home';
+        return isArtisan ? '/artisan/home' : '/home';
       }
 
       // Admin user stays inside admin console
       if (!loc.startsWith('/admin') && isAdmin) {
         return '/admin/dashboard';
+      }
+
+      // Protect artisan routes from non-artisan accounts.
+      if (loc.startsWith('/artisan/') && !isArtisan) {
+        return '/home';
+      }
+
+      // Artisan user stays inside artisan space (except shared chat & notifications).
+      final isSharedRoute = loc == '/discussions' ||
+          loc == '/messages' ||
+          loc == '/chat-detail' ||
+          loc == '/notifications';
+      if (isArtisan && !loc.startsWith('/artisan/') && !isSharedRoute) {
+        return '/artisan/home';
       }
 
       return null;
@@ -179,6 +201,25 @@ class AppRouter {
       GoRoute(
         path: '/profile',
         builder: (context, state) => const ProfileScreen(),
+      ),
+      // ── Artisan Space Routes ─────────────────────────────────────────────
+      GoRoute(
+        path: '/artisan/home',
+        builder: (context, state) => const ArtisanHomeScreen(),
+      ),
+      GoRoute(
+        path: '/artisan/missions',
+        builder: (context, state) => const ArtisanMissionsScreen(),
+      ),
+      GoRoute(
+        path: '/artisan/profile',
+        builder: (context, state) => const ArtisanProfileScreen(),
+      ),
+      GoRoute(
+        path: '/artisan/request-detail',
+        builder: (context, state) => ArtisanRequestDetailScreen(
+          request: state.extra as ServiceRequest,
+        ),
       ),
     ],
   );
