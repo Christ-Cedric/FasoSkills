@@ -16,4 +16,8 @@ abstract class AuthRepository {
   Future<Result<void>> logout();
   Future<Result<User>> getCurrentUser();
   Future<bool> hasValidToken();
+  Future<Result<User>> updateProfile(
+      {String? fullName, String? phone, String? profilePicture});
+  Future<Result<void>> changePassword(
+      {required String currentPassword, required String newPassword});
 }

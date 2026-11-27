@@ -1,12 +1,18 @@
 import { z } from 'zod';
+import { objectIdSchema } from '../../core/utils/validation.js';
 
 export const startConversationSchema = z.object({
-  recipientId: z.string().min(1),
-  initialMessage: z.string().min(1).max(2000).optional(),
+  recipientId: objectIdSchema,
+  initialMessage: z.string().trim().min(1).max(2000).optional(),
+  requestId: objectIdSchema.optional(),
 });
 
 export const sendMessageSchema = z.object({
-  text: z.string().min(1).max(2000),
+  text: z.string().trim().min(1).max(2000),
+});
+
+export const conversationParamsSchema = z.object({
+  conversationId: objectIdSchema,
 });
 
 export type StartConversationInput = z.infer<typeof startConversationSchema>;

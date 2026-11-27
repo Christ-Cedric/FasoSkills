@@ -279,7 +279,10 @@ describe('A12 - API Integration Tests', () => {
       expect(res.body.data.status).toBe('accepted');
 
       // Verify request is now in_progress
-      const reqRes = await request(app).get(`/api/requests/${requestId}`);
+      // Request details carry contact data, so reading them requires authentication.
+      const reqRes = await request(app)
+        .get(`/api/requests/${requestId}`)
+        .set('Authorization', `Bearer ${clientToken}`);
       expect(reqRes.body.data.status).toBe('in_progress');
     });
   });

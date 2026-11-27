@@ -5,7 +5,21 @@ import { User, RefreshToken, type IUser } from './auth.model.js';
 import { ArtisanProfile } from '../artisans/artisan.model.js';
 import { env } from '../../config/env.js';
 import { ConflictError, UnauthorizedError, NotFoundError } from '../../core/errors/app-error.js';
-import type { RegisterInput, LoginInput } from './auth.schema.js';
+import type { RegisterInput, LoginInput, UpdateMeInput, ChangePasswordInput } from './auth.schema.js';
+
+/** Single public shape of a user, identical for register, login and /me. */
+function toPublicUser(user: IUser, artisanProfileId?: string) {
+  return {
+    id: user._id.toString(),
+    email: user.email,
+    fullName: user.fullName,
+    phone: user.phone,
+    role: user.role,
+    profilePicture: user.profilePicture,
+    isVerified: user.isVerified,
+    artisanProfileId,
+  };
+}
 
 export class AuthService {
   private hashToken(token: string): string {
@@ -180,7 +194,28 @@ export class AuthService {
     if (user.role === 'artisan') {
       artisanProfile = await ArtisanProfile.findOne({ userId: user._id }).populate('category');
     }
-    return { user, artisanProfile };
+    return { user: toPublicUser(user, artisanProfile?._id?.toString()), artisanProfile };
+  }
+
+  public async updateMe(userId: string, input: UpdateMeInput) {
+    const user = await User.findById(userId);
+    if (!user) throw new NotFoundError('User');
+    if (input.fullName !== undefined) user.fullName = input.fullName;
+    if (input.phone !== undefined) user.phone = input.phone;
+    if (input.profilePicture !== undefined) user.profilePicture = input.profilePicture;
+    await user.save();
+    return this.getCurrentUser(userId);
+  }
+
+  public async changePassword(userId: string, input: ChangePasswordInput) {
+    const user = await User.findById(userId);
+    if (!user) throw new NotFoundError('User');
+    const isMatch = await bcrypt.compare(input.currentPassword, user.passwordHash);
+    if (!isMatch) throw new UnauthorizedError('Current password is incorrect');
+    user.passwordHash = await bcrypt.hash(input.newPassword, await bcrypt.genSalt(10));
+    await user.save();
+    // Sign out every other session.
+    await RefreshToken.updateMany({ userId: user._id, isRevoked: false }, { isRevoked: true });
   }
 }
 

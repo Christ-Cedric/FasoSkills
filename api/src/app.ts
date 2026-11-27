@@ -12,6 +12,7 @@ import reviewRoutes from './modules/reviews/review.routes.js';
 import chatRoutes from './modules/chat/chat.routes.js';
 import reportRoutes from './modules/reports/report.routes.js';
 import adminRoutes from './modules/admin/admin.routes.js';
+import notificationRoutes from './modules/notifications/notification.routes.js';
 
 import { errorHandler } from './core/middlewares/error-handler.js';
 import { NotFoundError } from './core/errors/app-error.js';
@@ -25,7 +26,7 @@ export function createApp(): Application {
   }));
   app.use(cors({
     origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   }));
 
@@ -62,6 +63,7 @@ export function createApp(): Application {
   app.use('/api/chat', chatRoutes);
   app.use('/api/reports', reportRoutes);
   app.use('/api/admin', adminRoutes);
+  app.use('/api/notifications', notificationRoutes);
 
   // 404 handler for undefined routes
   app.use((_req, _res, next) => {

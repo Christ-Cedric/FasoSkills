@@ -33,6 +33,33 @@ export class QuoteController {
       next(err);
     }
   }
+
+  public async reject(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const quote = await quoteService.reject(String(req.params.id), req.user!.id);
+      res.status(200).json({ data: quote, message: 'Quote declined' });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async withdraw(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      await quoteService.withdraw(String(req.params.id), req.user!.id);
+      res.status(204).send();
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async listMine(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const result = await quoteService.listMine(req.user!.id, req.query as any);
+      res.status(200).json(result);
+    } catch (err) {
+      next(err);
+    }
+  }
 }
 
 export const quoteController = new QuoteController();

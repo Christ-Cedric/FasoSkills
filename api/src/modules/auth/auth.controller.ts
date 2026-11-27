@@ -60,6 +60,24 @@ export class AuthController {
       next(err);
     }
   }
+
+  public async updateMe(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const result = await authService.updateMe(req.user!.id, req.body);
+      res.status(200).json({ data: result, message: 'Profile updated' });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async changePassword(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      await authService.changePassword(req.user!.id, req.body);
+      res.status(200).json({ data: null, message: 'Password changed' });
+    } catch (err) {
+      next(err);
+    }
+  }
 }
 
 export const authController = new AuthController();

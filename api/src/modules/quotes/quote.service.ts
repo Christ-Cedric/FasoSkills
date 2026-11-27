@@ -4,7 +4,12 @@ import { ArtisanProfile } from '../artisans/artisan.model.js';
 import { NotFoundError, ForbiddenError, ConflictError, ValidationError } from '../../core/errors/app-error.js';
 import { formatPaginatedResult, type PaginatedResult } from '../../core/utils/pagination.js';
 import { wsManager } from '../../core/websocket/ws-server.js';
-import type { CreateQuoteInput, QuoteQuery } from './quote.schema.js';
+import { notificationService } from '../notifications/notification.service.js';
+import type { CreateQuoteInput, QuoteQuery, MyQuotesQuery } from './quote.schema.js';
+
+function formatAmount(amount: number): string {
+  return `${Math.round(amount).toLocaleString('fr-FR')} FCFA`;
+}
 
 export class QuoteService {
   public async create(userId: string, data: CreateQuoteInput) {
@@ -49,6 +54,13 @@ export class QuoteService {
       quote: populated,
     });
     wsManager.broadcastToRoom(`request:${request._id}`, 'quote:received', populated);
+    const artisanName = (populated.artisanId as any)?.userId?.fullName ?? 'Un artisan';
+    await notificationService.notify(request.clientId, {
+      type: 'quote:received',
+      title: 'Nouveau devis reçu',
+      body: `${artisanName} propose ${formatAmount(data.amount)} pour « ${request.title} ».`,
+      data: { requestId: request._id.toString(), quoteId: quote._id.toString() },
+    });
 
     return populated;
   }
@@ -114,9 +126,21 @@ export class QuoteService {
     quote.status = 'accepted';
     await quote.save();
 
+    const others = await Quote.find({ requestId: request._id, _id: { $ne: quote._id }, status: 'pending' })
+      .populate('artisanId', 'userId')
+      .lean();
     await Quote.updateMany(
       { requestId: request._id, _id: { $ne: quote._id } },
       { status: 'rejected' }
+    );
+    await notificationService.notifyMany(
+      others.map((o: any) => o.artisanId?.userId).filter(Boolean),
+      {
+        type: 'quote:rejected',
+        title: 'Devis non retenu',
+        body: `Le client a choisi un autre artisan pour « ${request.title} ».`,
+        data: { requestId: request._id.toString() },
+      }
     );
 
     request.status = 'in_progress';
@@ -130,6 +154,12 @@ export class QuoteService {
         requestId: request._id,
         quoteId: quote._id,
       });
+      await notificationService.notify(artisan.userId, {
+        type: 'quote:accepted',
+        title: 'Devis accepté 🎉',
+        body: `Votre devis pour « ${request.title} » a été accepté. La mission commence !`,
+        data: { requestId: request._id.toString(), quoteId: quote._id.toString() },
+      });
     }
     wsManager.broadcastToRoom(`request:${request._id}`, 'request:in_progress', {
       requestId: request._id,
@@ -137,6 +167,73 @@ export class QuoteService {
     });
 
     return quote;
+  }
+
+  /** Client declines one quote; the request stays open for others. */
+  public async reject(quoteId: string, userId: string) {
+    const quote = await Quote.findById(quoteId).populate('artisanId', 'userId');
+    if (!quote) throw new NotFoundError('Quote');
+    const request = await ServiceRequest.findById(quote.requestId);
+    if (!request) throw new NotFoundError('Service request');
+    if (request.clientId.toString() !== userId) {
+      throw new ForbiddenError('Only the request owner can decline a quote');
+    }
+    if (quote.status !== 'pending') {
+      throw new ConflictError('Only a pending quote can be declined');
+    }
+    quote.status = 'rejected';
+    await quote.save();
+
+    const artisan: any = quote.artisanId;
+    if (artisan?.userId) {
+      await notificationService.notify(artisan.userId, {
+        type: 'quote:rejected',
+        title: 'Devis refusé',
+        body: `Le client a refusé votre devis pour « ${request.title} ».`,
+        data: { requestId: request._id.toString(), quoteId: quote._id.toString() },
+      });
+    }
+    return quote;
+  }
+
+  /** Artisan withdraws their own pending quote. */
+  public async withdraw(quoteId: string, userId: string) {
+    const artisan = await ArtisanProfile.findOne({ userId }).select('_id');
+    if (!artisan) throw new ForbiddenError('Only registered artisans can withdraw quotes');
+    const quote = await Quote.findById(quoteId);
+    if (!quote) throw new NotFoundError('Quote');
+    if (quote.artisanId.toString() !== artisan._id.toString()) {
+      throw new ForbiddenError('You can only withdraw your own quote');
+    }
+    if (quote.status !== 'pending') {
+      throw new ConflictError('Only a pending quote can be withdrawn');
+    }
+    await quote.deleteOne();
+  }
+
+  /** All quotes sent by the current artisan, with their request. */
+  public async listMine(userId: string, query: MyQuotesQuery): Promise<PaginatedResult<any>> {
+    const artisan = await ArtisanProfile.findOne({ userId }).select('_id');
+    if (!artisan) throw new ForbiddenError('Only registered artisans have quotes');
+    const filter: Record<string, any> = { artisanId: artisan._id };
+    if (query.status) filter.status = query.status;
+    const { page, limit } = query;
+    const [quotes, total] = await Promise.all([
+      Quote.find(filter)
+        .populate({
+          path: 'requestId',
+          populate: [
+            { path: 'clientId', select: 'fullName phone profilePicture' },
+            { path: 'categoryId', select: 'name slug icon' },
+          ],
+        })
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .lean(),
+      Quote.countDocuments(filter),
+    ]);
+    return formatPaginatedResult(quotes, total, page, limit);
   }
 }
 

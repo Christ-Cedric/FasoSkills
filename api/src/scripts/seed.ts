@@ -8,6 +8,7 @@ import { Quote } from '../modules/quotes/quote.model.js';
 import { Review } from '../modules/reviews/review.model.js';
 import { Conversation, Message } from '../modules/chat/chat.model.js';
 import { ModerationLog, Report } from '../modules/reports/report.model.js';
+import { Notification } from '../modules/notifications/notification.model.js';
 
 async function seed() {
   await connectDatabase();
@@ -25,6 +26,7 @@ async function seed() {
     Message.deleteMany({}),
     Report.deleteMany({}),
     ModerationLog.deleteMany({}),
+    Notification.deleteMany({}),
   ]);
 
   const salt = await bcrypt.genSalt(10);
@@ -198,6 +200,37 @@ async function seed() {
   request2.acceptedQuoteId = quote2._id as any;
   await request2.save();
 
+  // A mission in progress (client1 ↔ artisan1) and an open request without quotes.
+  const request3 = await ServiceRequest.create({
+    clientId: client1._id,
+    categoryId: categories[0]._id,
+    title: 'Remplacement chauffe-eau électrique 100L',
+    description: 'Le chauffe-eau ne chauffe plus. Fourniture et pose d’un modèle 100L souhaitées.',
+    city: 'Ouagadougou',
+    address: 'Ouaga 2000, secteur 15',
+    status: 'in_progress',
+  });
+  const quote3 = await Quote.create({
+    requestId: request3._id,
+    artisanId: profile1._id,
+    amount: 85000,
+    estimatedDays: 2,
+    message: 'Chauffe-eau 100L garanti 2 ans, pose et évacuation de l’ancien inclus.',
+    status: 'accepted',
+  });
+  request3.acceptedQuoteId = quote3._id as any;
+  await request3.save();
+
+  await ServiceRequest.create({
+    clientId: client2._id,
+    categoryId: categories[0]._id,
+    title: 'Robinet de douche qui goutte',
+    description: 'Le mitigeur de la douche fuit en continu, même fermé. Intervention cette semaine.',
+    city: 'Ouagadougou',
+    address: 'Tampouy',
+    status: 'pending',
+  });
+
   // 6. Review
   const review1 = await Review.create({
     requestId: request2._id,
@@ -210,7 +243,9 @@ async function seed() {
   // 7. Chat conversation & sample message
   const conv = await Conversation.create({
     participants: [client1._id, artisanUser1._id],
+    requestId: request3._id,
     lastMessage: 'Bonjour, je peux passer vers 16h.',
+    lastSenderId: artisanUser1._id,
     lastMessageAt: new Date(),
   });
 
@@ -220,6 +255,24 @@ async function seed() {
     text: 'Bonjour, je peux passer vers 16h.',
     isRead: false,
   });
+
+  // Starter notifications so both spaces show something on first launch.
+  await Notification.create([
+    {
+      userId: client1._id,
+      type: 'quote:received',
+      title: 'Nouveau devis reçu',
+      body: `${artisanUser1.fullName} propose 15 000 FCFA pour « ${request1.title} ».`,
+      data: { requestId: request1._id.toString() },
+    },
+    {
+      userId: artisanUser1._id,
+      type: 'quote:accepted',
+      title: 'Devis accepté 🎉',
+      body: `Votre devis pour « ${request3.title} » a été accepté. La mission commence !`,
+      data: { requestId: request3._id.toString() },
+    },
+  ]);
 
   // 8. Sample pending reports for Admin Moderation demo
   await Report.create([

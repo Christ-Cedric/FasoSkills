@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 /// Charte graphique FasoSkills — palette indigo premium.
@@ -157,11 +156,15 @@ class AppTheme {
       splashColor: primaryTint(0.12),
       highlightColor: primaryTint(0.08),
       fontFamily: 'Roboto',
+      // Pages appear instantly: no right-to-left slide on any platform.
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: {
-          TargetPlatform.android: CupertinoPageTransitionsBuilder(),
-          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-          TargetPlatform.windows: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.android: NoTransitionsBuilder(),
+          TargetPlatform.iOS: NoTransitionsBuilder(),
+          TargetPlatform.macOS: NoTransitionsBuilder(),
+          TargetPlatform.windows: NoTransitionsBuilder(),
+          TargetPlatform.linux: NoTransitionsBuilder(),
+          TargetPlatform.fuchsia: NoTransitionsBuilder(),
         },
       ),
       appBarTheme: const AppBarTheme(
@@ -323,4 +326,19 @@ class AppTheme {
       iconTheme: const IconThemeData(color: textSecondary),
     );
   }
+}
+
+/// Page transition that shows the new page immediately, without animation.
+class NoTransitionsBuilder extends PageTransitionsBuilder {
+  const NoTransitionsBuilder();
+
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) =>
+      child;
 }

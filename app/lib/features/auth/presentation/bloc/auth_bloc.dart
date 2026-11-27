@@ -48,6 +48,14 @@ class RegisterSubmitted extends AuthEvent {
 
 class LogoutRequested extends AuthEvent {}
 
+/// The current user's profile was edited: refresh it everywhere.
+class UserUpdated extends AuthEvent {
+  final User user;
+  const UserUpdated(this.user);
+  @override
+  List<Object?> get props => [user];
+}
+
 // States
 abstract class AuthState extends Equatable {
   const AuthState();
@@ -87,6 +95,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<LoginSubmitted>(_onLoginSubmitted);
     on<RegisterSubmitted>(_onRegisterSubmitted);
     on<LogoutRequested>(_onLogoutRequested);
+    on<UserUpdated>((event, emit) => emit(Authenticated(event.user)));
   }
 
   Future<void> _onCheckAuthStatus(

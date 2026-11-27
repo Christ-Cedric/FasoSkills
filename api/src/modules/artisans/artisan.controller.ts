@@ -65,6 +65,39 @@ export class ArtisanController {
     }
   }
 
+  public async me(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const profile = await artisanService.getByUserId(req.user!.id);
+      res.status(200).json({ data: profile });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async updateMe(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const current = await artisanService.getByUserId(req.user!.id);
+      const profile = await artisanService.updateProfile(
+        current._id.toString(),
+        req.user!.id,
+        req.user!.role,
+        req.body
+      );
+      res.status(200).json({ data: profile, message: 'Profile updated successfully' });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async myStats(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const stats = await artisanService.statsForUser(req.user!.id);
+      res.status(200).json({ data: stats });
+    } catch (err) {
+      next(err);
+    }
+  }
+
   public async adminGetById(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const profile = await artisanService.getById(String(req.params.id));

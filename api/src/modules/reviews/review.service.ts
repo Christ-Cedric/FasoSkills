@@ -1,6 +1,8 @@
 import { Review } from './review.model.js';
 import { ServiceRequest } from '../requests/request.model.js';
 import { ArtisanProfile } from '../artisans/artisan.model.js';
+import { Quote } from '../quotes/quote.model.js';
+import { notificationService } from '../notifications/notification.service.js';
 import { NotFoundError, ForbiddenError, ConflictError } from '../../core/errors/app-error.js';
 import { formatPaginatedResult, type PaginatedResult } from '../../core/utils/pagination.js';
 import type { CreateReviewInput, ReviewQuery } from './review.schema.js';
@@ -20,6 +22,16 @@ export class ReviewService {
       throw new ConflictError('Reviews can only be submitted for completed service requests');
     }
 
+    // The reviewed artisan is the one whose quote was accepted — never a free choice of the client.
+    const acceptedQuote = request.acceptedQuoteId ? await Quote.findById(request.acceptedQuoteId).lean() : null;
+    if (!acceptedQuote) {
+      throw new ConflictError('This request has no assigned artisan to review');
+    }
+    const artisanId = acceptedQuote.artisanId.toString();
+    if (data.artisanId && data.artisanId !== artisanId) {
+      throw new ForbiddenError('You can only review the artisan who did the job');
+    }
+
     const existing = await Review.findOne({ requestId: request._id });
     if (existing) {
       throw new ConflictError('A review has already been submitted for this request');
@@ -28,21 +40,29 @@ export class ReviewService {
     const review = await Review.create({
       requestId: request._id,
       clientId,
-      artisanId: data.artisanId,
+      artisanId,
       rating: data.rating,
       comment: data.comment || '',
     });
 
-    // Update artisan rating and completedJobs count
-    const artisanReviews = await Review.find({ artisanId: data.artisanId });
+    // Update artisan rating (completedJobs is incremented when the request is completed)
+    const artisanReviews = await Review.find({ artisanId });
     const totalRating = artisanReviews.reduce((sum, r) => sum + r.rating, 0);
     const avgRating = Number((totalRating / artisanReviews.length).toFixed(1));
 
-    await ArtisanProfile.findByIdAndUpdate(data.artisanId, {
+    const profile = await ArtisanProfile.findByIdAndUpdate(artisanId, {
       rating: avgRating,
       reviewsCount: artisanReviews.length,
-      $inc: { completedJobs: 1 },
     });
+
+    if (profile) {
+      await notificationService.notify(profile.userId, {
+        type: 'review:new',
+        title: `Nouvel avis : ${data.rating}/5`,
+        body: data.comment || `Un client a noté « ${request.title} ».`,
+        data: { requestId: request._id.toString(), reviewId: review._id.toString() },
+      });
+    }
 
     return review.populate({
       path: 'clientId',

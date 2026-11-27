@@ -17,8 +17,21 @@ export class ServiceRequestController {
 
   public async getById(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const request = await serviceRequestService.getById(String(req.params.id));
+      const request = await serviceRequestService.getById(
+        String(req.params.id),
+        req.user!.id,
+        req.user!.role
+      );
       res.status(200).json({ data: request });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  public async stats(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const stats = await serviceRequestService.clientStats(req.user!.id);
+      res.status(200).json({ data: stats });
     } catch (err) {
       next(err);
     }

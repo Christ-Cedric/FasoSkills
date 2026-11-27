@@ -92,8 +92,10 @@ class ArtisanListBloc extends Bloc<ArtisanListEvent, ArtisanListState> {
       LoadArtisans event, Emitter<ArtisanListState> emit) async {
     emit(ArtisanListLoading());
 
-    // F9: Cache then network pattern
-    final cached = await _repository.getCachedArtisans();
+    // F9: Cache then network pattern. The cache holds the unfiltered list,
+    // so it is only shown when no filter is applied.
+    final unfiltered = event.categoryId == null && event.city == null;
+    final cached = unfiltered ? await _repository.getCachedArtisans() : null;
     if (cached != null && cached.isNotEmpty) {
       emit(ArtisanListLoaded(cached, isFromCache: true));
     }

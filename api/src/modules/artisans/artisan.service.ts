@@ -4,6 +4,9 @@ import { User } from '../auth/auth.model.js';
 import { NotFoundError, ForbiddenError, ConflictError } from '../../core/errors/app-error.js';
 import { formatPaginatedResult, type PaginatedResult } from '../../core/utils/pagination.js';
 import { wsManager } from '../../core/websocket/ws-server.js';
+import { notificationService } from '../notifications/notification.service.js';
+import { Quote } from '../quotes/quote.model.js';
+import { ServiceRequest } from '../requests/request.model.js';
 import type {
   AdminArtisansQuery,
   ArtisanQuery,
@@ -25,7 +28,13 @@ export class ArtisanService {
 
     if (search) {
       const regex = new RegExp(escapeRegex(search), 'i');
-      filter.$or = [{ specialty: regex }, { bio: regex }];
+      // Match the artisan's name as well as their trade and bio.
+      const users = await User.find({ role: 'artisan', fullName: regex }).select('_id').lean();
+      filter.$or = [
+        { specialty: regex },
+        { bio: regex },
+        ...(users.length > 0 ? [{ userId: { $in: users.map((u) => u._id) } }] : []),
+      ];
     }
 
     const skip = (page - 1) * limit;
@@ -120,6 +129,12 @@ export class ArtisanService {
       artisanProfileId: profile._id.toString(),
       isVerified: true,
     });
+    await notificationService.notify(profile.userId, {
+      type: 'artisan:verified',
+      title: 'Profil vérifié ✅',
+      body: 'Votre profil artisan a été validé. Les clients voient maintenant votre badge vérifié.',
+      data: { artisanProfileId: profile._id.toString() },
+    });
 
     return populated;
   }
@@ -146,8 +161,67 @@ export class ArtisanService {
       artisanProfileId: profile._id.toString(),
       reason,
     });
+    await notificationService.notify(profile.userId, {
+      type: 'artisan:rejected',
+      title: 'Vérification refusée',
+      body: `Motif : ${reason}`,
+      data: { artisanProfileId: profile._id.toString() },
+    });
 
     return populated;
+  }
+
+  public async getByUserId(userId: string) {
+    const profile = await ArtisanProfile.findOne({ userId })
+      .populate('userId', 'fullName email phone profilePicture isVerified createdAt')
+      .populate('category', 'name slug icon');
+    if (!profile) throw new NotFoundError('Artisan profile');
+    return profile;
+  }
+
+  /** Dashboard counters for the logged-in artisan. */
+  public async statsForUser(userId: string) {
+    const profile = await ArtisanProfile.findOne({ userId }).lean();
+    if (!profile) throw new NotFoundError('Artisan profile');
+
+    const [quoteRows, acceptedQuotes] = await Promise.all([
+      Quote.aggregate([
+        { $match: { artisanId: profile._id } },
+        { $group: { _id: '$status', count: { $sum: 1 } } },
+      ]),
+      Quote.find({ artisanId: profile._id, status: 'accepted' })
+        .populate('requestId', 'status')
+        .select('amount requestId')
+        .lean(),
+    ]);
+    const quotesBy = Object.fromEntries(quoteRows.map((r) => [r._id, r.count as number]));
+
+    let activeMissions = 0;
+    let earnings = 0;
+    for (const q of acceptedQuotes as any[]) {
+      const status = q.requestId?.status;
+      if (status === 'in_progress' || status === 'accepted') activeMissions += 1;
+      if (status === 'completed') earnings += q.amount;
+    }
+
+    const openRequests = await ServiceRequest.countDocuments({
+      status: 'pending',
+      ...(profile.category ? { categoryId: profile.category } : {}),
+    });
+
+    return {
+      openRequests,
+      pendingQuotes: quotesBy.pending ?? 0,
+      acceptedQuotes: quotesBy.accepted ?? 0,
+      rejectedQuotes: quotesBy.rejected ?? 0,
+      activeMissions,
+      completedJobs: profile.completedJobs,
+      rating: profile.rating,
+      reviewsCount: profile.reviewsCount,
+      earnings,
+      verificationStatus: profile.verificationStatus,
+      profileStatus: profile.profileStatus,
+    };
   }
 
   public async adminList(query: AdminArtisansQuery): Promise<PaginatedResult<any>> {

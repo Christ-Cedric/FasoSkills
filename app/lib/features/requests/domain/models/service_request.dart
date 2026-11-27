@@ -1,4 +1,6 @@
 import 'package:equatable/equatable.dart';
+import '../../../../core/utils/json_utils.dart';
+import 'quote.dart';
 
 class ServiceRequest extends Equatable {
   final String id;
@@ -14,6 +16,19 @@ class ServiceRequest extends Equatable {
   final String? acceptedQuoteId;
   final DateTime? createdAt;
 
+  // Enrichments returned by the API (null/0 when not provided).
+  final String? clientName;
+  final String? clientPhone;
+  final String? categoryName;
+  final String? categoryIcon;
+  final int quotesCount;
+  final Quote? acceptedQuote;
+
+  /// The current artisan's own quote on this request (artisan views only).
+  final Quote? myQuote;
+  final int? reviewRating;
+  final String? reviewComment;
+
   const ServiceRequest({
     required this.id,
     required this.clientId,
@@ -26,7 +41,22 @@ class ServiceRequest extends Equatable {
     this.status = 'pending',
     this.acceptedQuoteId,
     this.createdAt,
+    this.clientName,
+    this.clientPhone,
+    this.categoryName,
+    this.categoryIcon,
+    this.quotesCount = 0,
+    this.acceptedQuote,
+    this.myQuote,
+    this.reviewRating,
+    this.reviewComment,
   });
+
+  bool get isPending => status == 'pending';
+  bool get isActive => status == 'in_progress' || status == 'accepted';
+  bool get isCompleted => status == 'completed';
+  bool get isCancelled => status == 'cancelled';
+  bool get hasReview => reviewRating != null;
 
   ServiceRequest copyWith({
     String? id,
@@ -53,18 +83,28 @@ class ServiceRequest extends Equatable {
       status: status ?? this.status,
       acceptedQuoteId: acceptedQuoteId ?? this.acceptedQuoteId,
       createdAt: createdAt ?? this.createdAt,
+      clientName: clientName,
+      clientPhone: clientPhone,
+      categoryName: categoryName,
+      categoryIcon: categoryIcon,
+      quotesCount: quotesCount,
+      acceptedQuote: acceptedQuote,
+      myQuote: myQuote,
+      reviewRating: reviewRating,
+      reviewComment: reviewComment,
     );
   }
 
   factory ServiceRequest.fromJson(Map<String, dynamic> json) {
+    final client = asMap(json['clientId']);
+    final category = asMap(json['categoryId']);
+    final accepted = asMap(json['acceptedQuote']);
+    final mine = asMap(json['myQuote']);
+    final review = asMap(json['review']);
     return ServiceRequest(
-      id: json['id'] ?? json['_id'] ?? '',
-      clientId: json['clientId'] is Map
-          ? (json['clientId']['id'] ?? json['clientId']['_id'] ?? '')
-          : (json['clientId'] ?? ''),
-      categoryId: json['categoryId'] is Map
-          ? (json['categoryId']['id'] ?? json['categoryId']['_id'] ?? '')
-          : (json['categoryId'] ?? ''),
+      id: readId(json),
+      clientId: readId(json['clientId']),
+      categoryId: readId(json['categoryId']),
       title: json['title'] ?? '',
       description: json['description'] ?? '',
       city: json['city'] ?? '',
@@ -72,10 +112,19 @@ class ServiceRequest extends Equatable {
       photos: (json['photos'] as List?)?.map((e) => e.toString()).toList() ??
           const [],
       status: json['status'] ?? 'pending',
-      acceptedQuoteId: json['acceptedQuoteId']?.toString(),
-      createdAt: json['createdAt'] != null
-          ? DateTime.tryParse(json['createdAt'])
+      acceptedQuoteId: json['acceptedQuoteId'] != null
+          ? readId(json['acceptedQuoteId'])
           : null,
+      createdAt: readDate(json['createdAt']),
+      clientName: client?['fullName'],
+      clientPhone: client?['phone'],
+      categoryName: category?['name'],
+      categoryIcon: category?['icon'],
+      quotesCount: readInt(json['quotesCount']),
+      acceptedQuote: accepted != null ? Quote.fromJson(accepted) : null,
+      myQuote: mine != null ? Quote.fromJson(mine) : null,
+      reviewRating: review != null ? readInt(review['rating']) : null,
+      reviewComment: review?['comment'],
     );
   }
 
@@ -104,5 +153,9 @@ class ServiceRequest extends Equatable {
         photos,
         status,
         acceptedQuoteId,
+        quotesCount,
+        acceptedQuote,
+        myQuote,
+        reviewRating,
       ];
 }

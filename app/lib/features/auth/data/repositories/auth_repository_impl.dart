@@ -54,15 +54,18 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final res = await _apiClient.post(
         '/auth/register',
+        // Optional fields are omitted when empty: the API rejects null/blank values.
         body: {
           'email': email,
           'password': password,
           'fullName': fullName,
-          'phone': phone,
           'role': role,
-          'specialty': specialty,
-          'city': city,
-          'categoryId': categoryId,
+          if (phone != null && phone.trim().isNotEmpty) 'phone': phone.trim(),
+          if (specialty != null && specialty.trim().isNotEmpty)
+            'specialty': specialty.trim(),
+          if (city != null && city.trim().isNotEmpty) 'city': city.trim(),
+          if (categoryId != null && categoryId.isNotEmpty)
+            'categoryId': categoryId,
         },
         requiresAuth: false,
       );
@@ -118,5 +121,38 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<bool> hasValidToken() async {
     final token = await _storage.getAccessToken();
     return token != null && token.isNotEmpty;
+  }
+
+  @override
+  Future<Result<User>> updateProfile(
+      {String? fullName, String? phone, String? profilePicture}) async {
+    try {
+      final res = await _apiClient.patch('/auth/me', body: {
+        if (fullName != null) 'fullName': fullName,
+        if (phone != null && phone.isNotEmpty) 'phone': phone,
+        if (profilePicture != null) 'profilePicture': profilePicture,
+      });
+      return Success(User.fromJson(res['data']['user']));
+    } on Failure catch (f) {
+      return FailureResult(f);
+    } catch (e) {
+      return FailureResult(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Result<void>> changePassword(
+      {required String currentPassword, required String newPassword}) async {
+    try {
+      await _apiClient.post('/auth/change-password', body: {
+        'currentPassword': currentPassword,
+        'newPassword': newPassword,
+      });
+      return const Success(null);
+    } on Failure catch (f) {
+      return FailureResult(f);
+    } catch (e) {
+      return FailureResult(ServerFailure(e.toString()));
+    }
   }
 }

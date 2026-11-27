@@ -2,7 +2,10 @@ import mongoose, { Schema, type Document } from 'mongoose';
 
 export interface IConversation extends Document {
   participants: mongoose.Types.ObjectId[];
+  /** Optional service request this conversation is about. */
+  requestId?: mongoose.Types.ObjectId;
   lastMessage?: string;
+  lastSenderId?: mongoose.Types.ObjectId;
   lastMessageAt?: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -11,7 +14,9 @@ export interface IConversation extends Document {
 const conversationSchema = new Schema<IConversation>(
   {
     participants: [{ type: Schema.Types.ObjectId, ref: 'User', required: true }],
+    requestId: { type: Schema.Types.ObjectId, ref: 'ServiceRequest' },
     lastMessage: { type: String, default: '' },
+    lastSenderId: { type: Schema.Types.ObjectId, ref: 'User' },
     lastMessageAt: { type: Date, default: Date.now },
   },
   { timestamps: true }
@@ -40,5 +45,6 @@ const messageSchema = new Schema<IMessage>(
 );
 
 messageSchema.index({ conversationId: 1, createdAt: 1 });
+messageSchema.index({ conversationId: 1, isRead: 1, senderId: 1 });
 
 export const Message = mongoose.model<IMessage>('Message', messageSchema);

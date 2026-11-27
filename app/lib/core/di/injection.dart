@@ -20,6 +20,13 @@ import '../../features/requests/presentation/bloc/request_bloc.dart';
 import '../../features/chat/domain/repositories/chat_repository.dart';
 import '../../features/chat/data/repositories/chat_repository_impl.dart';
 import '../../features/chat/presentation/bloc/chat_bloc.dart';
+import '../../features/chat/presentation/bloc/conversations_cubit.dart';
+
+import '../../features/notifications/domain/repositories/notification_repository.dart';
+import '../../features/notifications/data/repositories/notification_repository_impl.dart';
+import '../../features/notifications/presentation/bloc/notifications_cubit.dart';
+
+import '../../features/agent/presentation/bloc/artisan_work_cubit.dart';
 
 import '../../features/admin/dashboard/domain/repositories/admin_dashboard_repository.dart';
 import '../../features/admin/dashboard/data/repositories/admin_dashboard_repository_impl.dart';
@@ -80,6 +87,10 @@ Future<void> setupDependencyInjection() async {
     () => ChatRepositoryImpl(apiClient: getIt<ApiClient>()),
   );
 
+  getIt.registerLazySingleton<NotificationRepository>(
+    () => NotificationRepositoryImpl(apiClient: getIt<ApiClient>()),
+  );
+
   // Admin repositories
   getIt.registerLazySingleton<AdminDashboardRepository>(
     () => AdminDashboardRepositoryImpl(
@@ -116,6 +127,28 @@ Future<void> setupDependencyInjection() async {
   getIt.registerFactory<ChatBloc>(
     () => ChatBloc(
       repository: getIt<ChatRepository>(),
+      wsClient: getIt<WebSocketClient>(),
+    ),
+  );
+
+  getIt.registerFactory<ConversationsCubit>(
+    () => ConversationsCubit(
+      repository: getIt<ChatRepository>(),
+      wsClient: getIt<WebSocketClient>(),
+    ),
+  );
+
+  getIt.registerFactory<NotificationsCubit>(
+    () => NotificationsCubit(
+      repository: getIt<NotificationRepository>(),
+      wsClient: getIt<WebSocketClient>(),
+    ),
+  );
+
+  getIt.registerFactory<ArtisanWorkCubit>(
+    () => ArtisanWorkCubit(
+      requestRepository: getIt<RequestRepository>(),
+      artisanRepository: getIt<ArtisanRepository>(),
       wsClient: getIt<WebSocketClient>(),
     ),
   );

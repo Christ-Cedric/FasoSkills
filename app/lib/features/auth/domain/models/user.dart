@@ -8,6 +8,7 @@ class User extends Equatable {
   final String role; // 'client' | 'artisan' | 'admin'
   final bool isVerified;
   final String? artisanProfileId;
+  final String? profilePicture;
 
   const User({
     required this.id,
@@ -17,6 +18,7 @@ class User extends Equatable {
     required this.role,
     this.isVerified = false,
     this.artisanProfileId,
+    this.profilePicture,
   });
 
   bool get isArtisan => role == 'artisan';
@@ -25,15 +27,28 @@ class User extends Equatable {
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      id: json['id'] ?? json['_id'] ?? '',
+      id: (json['id'] ?? json['_id'] ?? '').toString(),
       email: json['email'] ?? '',
       fullName: json['fullName'] ?? '',
       phone: json['phone'],
       role: json['role'] ?? 'client',
       isVerified: json['isVerified'] ?? false,
-      artisanProfileId: json['artisanProfileId'],
+      artisanProfileId: json['artisanProfileId']?.toString(),
+      profilePicture: json['profilePicture'],
     );
   }
+
+  User copyWith({String? fullName, String? phone, String? profilePicture}) =>
+      User(
+        id: id,
+        email: email,
+        fullName: fullName ?? this.fullName,
+        phone: phone ?? this.phone,
+        role: role,
+        isVerified: isVerified,
+        artisanProfileId: artisanProfileId,
+        profilePicture: profilePicture ?? this.profilePicture,
+      );
 
   Map<String, dynamic> toJson() {
     return {
@@ -44,10 +59,19 @@ class User extends Equatable {
       'role': role,
       'isVerified': isVerified,
       'artisanProfileId': artisanProfileId,
+      'profilePicture': profilePicture,
     };
   }
 
   @override
-  List<Object?> get props =>
-      [id, email, fullName, phone, role, isVerified, artisanProfileId];
+  List<Object?> get props => [
+        id,
+        email,
+        fullName,
+        phone,
+        role,
+        isVerified,
+        artisanProfileId,
+        profilePicture
+      ];
 }

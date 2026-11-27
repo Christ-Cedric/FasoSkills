@@ -3,6 +3,7 @@ import '../../../../core/errors/result.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/storage/cache_service.dart';
 import '../../domain/models/artisan.dart';
+import '../../domain/models/artisan_stats.dart';
 import '../../domain/repositories/artisan_repository.dart';
 
 class ArtisanRepositoryImpl implements ArtisanRepository {
@@ -103,4 +104,57 @@ class ArtisanRepositoryImpl implements ArtisanRepository {
       return FailureResult(ServerFailure(e.toString()));
     }
   }
+
+  Future<Result<T>> _guard<T>(Future<T> Function() run) async {
+    try {
+      return Success(await run());
+    } on Failure catch (f) {
+      return FailureResult(f);
+    } catch (e) {
+      return FailureResult(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Result<List<ArtisanReview>>> getReviews(String artisanId) =>
+      _guard(() async {
+        final res = await _apiClient.get('/reviews/artisan/$artisanId',
+            requiresAuth: false);
+        return ((res['data'] ?? []) as List)
+            .map((e) => ArtisanReview.fromJson(e))
+            .toList();
+      });
+
+  @override
+  Future<Result<Artisan>> getMyProfile() => _guard(() async {
+        final res = await _apiClient.get('/artisans/me');
+        return Artisan.fromJson(res['data']);
+      });
+
+  @override
+  Future<Result<Artisan>> updateMyProfile({
+    String? specialty,
+    String? city,
+    String? categoryId,
+    int? experienceYears,
+    String? bio,
+    String? availability,
+  }) =>
+      _guard(() async {
+        final res = await _apiClient.put('/artisans/me', body: {
+          if (specialty != null) 'specialty': specialty,
+          if (city != null) 'city': city,
+          if (categoryId != null) 'categoryId': categoryId,
+          if (experienceYears != null) 'experienceYears': experienceYears,
+          if (bio != null) 'bio': bio,
+          if (availability != null) 'availability': availability,
+        });
+        return Artisan.fromJson(res['data']);
+      });
+
+  @override
+  Future<Result<ArtisanStats>> getMyStats() => _guard(() async {
+        final res = await _apiClient.get('/artisans/me/stats');
+        return ArtisanStats.fromJson(res['data']);
+      });
 }

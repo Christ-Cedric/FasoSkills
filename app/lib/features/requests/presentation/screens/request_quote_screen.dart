@@ -1,592 +1,256 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/di/injection.dart';
+import '../../../../core/errors/failure.dart';
+import '../../../../shared/widgets/ui_kit.dart';
+import '../../../artisans/domain/models/artisan.dart';
+import '../../../artisans/domain/repositories/artisan_repository.dart';
+import '../../domain/repositories/request_repository.dart';
 import '../bloc/request_bloc.dart';
 
+/// Client form: publish a request. Every artisan of the chosen category is notified
+/// and can answer with a quote.
 class RequestQuoteScreen extends StatefulWidget {
-  const RequestQuoteScreen({super.key});
+  final String? initialCategoryId;
+  const RequestQuoteScreen({super.key, this.initialCategoryId});
 
   @override
   State<RequestQuoteScreen> createState() => _RequestQuoteScreenState();
 }
 
 class _RequestQuoteScreenState extends State<RequestQuoteScreen> {
-  final _formKey = GlobalKey<FormState>();
-  
-  String _selectedCategory = 'Plomberie';
-  final _titleController = TextEditingController(text: "Réparation fuite d'eau sous évier");
-  final _descController = TextEditingController(
-    text: "Le siphon sous l'évier de la cuisine fuit dès que l'eau coule. Besoin d'un remplacement rapide aujourd'hui.",
-  );
-  final _addressController = TextEditingController(text: 'Ouaga 2000, Secteur 15 — Villa 42');
-  final _dateController = TextEditingController(text: '25/11/2026');
-  String _selectedSlot = 'Après-midi (14h – 18h)';
-  final _budgetController = TextEditingController(text: '15 000');
-  bool _isSurDevis = false;
+  final _form = GlobalKey<FormState>();
+  final _title = TextEditingController();
+  final _description = TextEditingController();
+  final _city = TextEditingController(text: 'Ouagadougou');
+  final _address = TextEditingController();
 
-  final List<Map<String, dynamic>> _categories = [
-    {'name': 'Plomberie', 'icon': Icons.plumbing_rounded},
-    {'name': 'Électricité', 'icon': Icons.bolt_rounded},
-    {'name': 'Menuiserie', 'icon': Icons.carpenter_rounded},
-    {'name': 'Couture', 'icon': Icons.checkroom_rounded},
-  ];
+  List<Category> _categories = const [];
+  String? _categoryId;
+  bool _loadingCategories = true;
+  bool _submitting = false;
+  Map<String, String> _fieldErrors = const {};
+
+  @override
+  void initState() {
+    super.initState();
+    _categoryId = widget.initialCategoryId;
+    _loadCategories();
+  }
+
+  Future<void> _loadCategories() async {
+    setState(() => _loadingCategories = true);
+    final result = await getIt<ArtisanRepository>().getCategories();
+    if (!mounted) return;
+    setState(() {
+      _loadingCategories = false;
+      _categories = result.dataOrNull ?? const [];
+    });
+  }
 
   @override
   void dispose() {
-    _titleController.dispose();
-    _descController.dispose();
-    _addressController.dispose();
-    _dateController.dispose();
-    _budgetController.dispose();
+    _title.dispose();
+    _description.dispose();
+    _city.dispose();
+    _address.dispose();
     super.dispose();
   }
 
-  void _submit() {
-    if (_formKey.currentState!.validate()) {
-      context.read<RequestBloc>().add(
-            CreateRequestSubmitted(
-              title: _titleController.text.trim(),
-              description: _descController.text.trim(),
-              categoryId: _selectedCategory.toLowerCase(),
-              city: 'Ouagadougou',
-              address: _addressController.text.trim(),
-            ),
-          );
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: const Color(0xFF10B981),
-          content: Row(
-            children: const [
-              Icon(Icons.check_circle_rounded, color: Colors.white),
-              SizedBox(width: 10),
-              Expanded(child: Text('Votre demande a été envoyée avec succès aux artisans !')),
-            ],
-          ),
-        ),
-      );
-      context.pop();
+  Future<void> _submit() async {
+    setState(() => _fieldErrors = const {});
+    if (_categoryId == null) {
+      showFeedback(context, 'Choisissez le type de service', error: true);
+      return;
     }
+    if (!_form.currentState!.validate()) return;
+    FocusScope.of(context).unfocus();
+    setState(() => _submitting = true);
+
+    final result = await getIt<RequestRepository>().createRequest(
+      title: _title.text.trim(),
+      description: _description.text.trim(),
+      categoryId: _categoryId!,
+      city: _city.text.trim(),
+      address: _address.text.trim(),
+    );
+    if (!mounted) return;
+    setState(() => _submitting = false);
+
+    result.when(
+      success: (request) {
+        context.read<RequestBloc>().add(LoadMyRequests());
+        showFeedback(
+            context, 'Demande publiée : les artisans du métier sont prévenus');
+        context.pushReplacement('/requests/${request.id}');
+      },
+      failure: (f) {
+        if (f is ValidationFailure) {
+          setState(() => _fieldErrors = f.fieldErrors);
+        }
+        showFeedback(context, f.message, error: true);
+      },
+    );
   }
+
+  InputDecoration _decoration(String label, String field, {String? hint}) =>
+      InputDecoration(
+        labelText: label,
+        hintText: hint,
+        errorText: _fieldErrors[field],
+        alignLabelWithHint: true,
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: const BorderSide(color: Palette.border)),
+        enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: const BorderSide(color: Palette.border)),
+      );
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        leading: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Container(
-            decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
-              shape: BoxShape.circle,
-            ),
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back_rounded, color: Color(0xFF0F172A), size: 20),
-              onPressed: () => context.pop(),
-            ),
-          ),
-        ),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text(
-              'Nouvelle demande',
-              style: TextStyle(
-                color: Color(0xFF0F172A),
-                fontSize: 18,
-                fontWeight: FontWeight.w800,
-                letterSpacing: -0.3,
+      backgroundColor: Palette.background,
+      appBar: pageAppBar(context, 'Nouvelle demande'),
+      body: Form(
+        key: _form,
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+          children: [
+            const Text('Décrivez votre besoin en 1 minute',
+                style: TextStyle(fontSize: 14, color: Palette.muted)),
+            const SizedBox(height: 16),
+            const Text('Type de service',
+                style:
+                    TextStyle(fontWeight: FontWeight.w800, color: Palette.ink)),
+            const SizedBox(height: 8),
+            if (_loadingCategories)
+              const LinearProgressIndicator(color: Palette.primary)
+            else if (_categories.isEmpty)
+              TextButton.icon(
+                onPressed: _loadCategories,
+                icon: const Icon(Icons.refresh_rounded),
+                label: const Text(
+                    'Impossible de charger les services — réessayer'),
+              )
+            else
+              GridView.count(
+                crossAxisCount: 3,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                mainAxisSpacing: 8,
+                crossAxisSpacing: 8,
+                childAspectRatio: 1.15,
+                children: [
+                  for (final c in _categories)
+                    _CategoryTile(
+                      category: c,
+                      selected: _categoryId == c.id,
+                      onTap: () => setState(() => _categoryId = c.id),
+                    ),
+                ],
               ),
+            const SizedBox(height: 18),
+            TextFormField(
+              controller: _title,
+              textCapitalization: TextCapitalization.sentences,
+              decoration: _decoration('Titre', 'title',
+                  hint: 'Ex : Fuite d’eau sous l’évier'),
+              validator: (v) =>
+                  (v ?? '').trim().length < 5 ? 'Au moins 5 caractères' : null,
             ),
-            Text(
-              'Décrivez votre besoin en 1 minute',
-              style: TextStyle(
-                color: Color(0xFF64748B),
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _description,
+              maxLines: 4,
+              textCapitalization: TextCapitalization.sentences,
+              decoration: _decoration('Description', 'description',
+                  hint: 'Que faut-il faire ? Depuis quand ? Urgence ?'),
+              validator: (v) => (v ?? '').trim().length < 10
+                  ? 'Au moins 10 caractères'
+                  : null,
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _city,
+              decoration: _decoration('Ville', 'city'),
+              validator: (v) =>
+                  (v ?? '').trim().length < 2 ? 'Ville requise' : null,
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _address,
+              decoration: _decoration(
+                  'Quartier / adresse (facultatif)', 'address',
+                  hint: 'Ex : Ouaga 2000, secteur 15'),
+            ),
+            const SizedBox(height: 22),
+            FilledButton.icon(
+              onPressed: _submitting ? null : _submit,
+              icon: _submitting
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2, color: Colors.white))
+                  : const Icon(Icons.send_rounded),
+              label: const Text('Publier la demande'),
+              style: FilledButton.styleFrom(
+                backgroundColor: Palette.primary,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14)),
               ),
             ),
           ],
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: Center(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFEFF6FF),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFFBFDBFE)),
-                ),
-                child: const Text(
-                  'Espace Client',
-                  style: TextStyle(
-                    color: Color(0xFF1E3A8A),
-                    fontSize: 11.5,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 1. Catégorie de service
-                const Text(
-                  'Catégorie de service',
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
-                    color: Color(0xFF0F172A),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: _categories.map((cat) {
-                    final isSelected = _selectedCategory == cat['name'];
-                    return Expanded(
-                      child: GestureDetector(
-                        onTap: () => setState(() => _selectedCategory = cat['name'] as String),
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 4),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          decoration: BoxDecoration(
-                            color: isSelected ? const Color(0xFFEFF6FF) : Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: isSelected ? const Color(0xFF2563EB) : const Color(0xFFE2E8F0),
-                              width: isSelected ? 1.8 : 1,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.02),
-                                blurRadius: 6,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                cat['icon'] as IconData,
-                                color: isSelected ? const Color(0xFF2563EB) : const Color(0xFF64748B),
-                                size: 22,
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                cat['name'] as String,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                                  color: isSelected ? const Color(0xFF1E3A8A) : const Color(0xFF475569),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
+    );
+  }
+}
 
-                const SizedBox(height: 20),
+class _CategoryTile extends StatelessWidget {
+  final Category category;
+  final bool selected;
+  final VoidCallback onTap;
 
-                // 2. Card: Titre, Description, Photos
-                Container(
-                  padding: const EdgeInsets.all(18),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: const Color(0xFFE2E8F0)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.02),
-                        blurRadius: 10,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Titre de la demande',
-                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
-                      ),
-                      const SizedBox(height: 8),
-                      TextFormField(
-                        controller: _titleController,
-                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF0F172A)),
-                        decoration: InputDecoration(
-                          hintText: 'ex: Réparation fuite d\'eau',
-                          filled: true,
-                          fillColor: const Color(0xFFF8FAFC),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(14),
-                            borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(14),
-                            borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                          ),
-                        ),
-                        validator: (v) => v == null || v.isEmpty ? 'Veuillez saisir un titre' : null,
-                      ),
+  const _CategoryTile(
+      {required this.category, required this.selected, required this.onTap});
 
-                      const SizedBox(height: 16),
-
-                      const Text(
-                        'Description du problème ou besoin',
-                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
-                      ),
-                      const SizedBox(height: 8),
-                      TextFormField(
-                        controller: _descController,
-                        maxLines: 3,
-                        style: const TextStyle(fontSize: 13.5, color: Color(0xFF334155), height: 1.4),
-                        decoration: InputDecoration(
-                          hintText: 'Décrivez précisément les détails...',
-                          filled: true,
-                          fillColor: const Color(0xFFF8FAFC),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(14),
-                            borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(14),
-                            borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                          ),
-                        ),
-                        validator: (v) => v == null || v.isEmpty ? 'Description requise' : null,
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      const Text(
-                        'Photos (optionnel)',
-                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
-                      ),
-                      const SizedBox(height: 8),
-                      InkWell(
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Sélecteur de photos ouvert')),
-                          );
-                        },
-                        borderRadius: BorderRadius.circular(14),
-                        child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(
-                              color: const Color(0xFF93C5FD),
-                              style: BorderStyle.solid,
-                              width: 1.5,
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              Icon(Icons.camera_alt_outlined, color: Color(0xFF2563EB), size: 20),
-                              SizedBox(width: 8),
-                              Text(
-                                'Ajouter une photo du besoin',
-                                style: TextStyle(
-                                  color: Color(0xFF2563EB),
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 16),
-
-                // 3. Card: Adresse, Date, Créneau
-                Container(
-                  padding: const EdgeInsets.all(18),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: const Color(0xFFE2E8F0)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.02),
-                        blurRadius: 10,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Adresse d\'intervention',
-                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
-                      ),
-                      const SizedBox(height: 8),
-                      TextFormField(
-                        controller: _addressController,
-                        style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600, color: Color(0xFF0F172A)),
-                        decoration: InputDecoration(
-                          prefixIcon: const Icon(Icons.location_on_outlined, color: Color(0xFF2563EB), size: 20),
-                          filled: true,
-                          fillColor: const Color(0xFFF8FAFC),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(14),
-                            borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(14),
-                            borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(height: 14),
-
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Date souhaitée',
-                                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
-                                ),
-                                const SizedBox(height: 8),
-                                TextFormField(
-                                  controller: _dateController,
-                                  readOnly: true,
-                                  onTap: () async {
-                                    final d = await showDatePicker(
-                                      context: context,
-                                      initialDate: DateTime.now(),
-                                      firstDate: DateTime.now(),
-                                      lastDate: DateTime.now().add(const Duration(days: 90)),
-                                    );
-                                    if (d != null) {
-                                      setState(() {
-                                        _dateController.text =
-                                            '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';
-                                      });
-                                    }
-                                  },
-                                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF0F172A)),
-                                  decoration: InputDecoration(
-                                    suffixIcon: const Icon(Icons.calendar_today_outlined, size: 18, color: Color(0xFF64748B)),
-                                    filled: true,
-                                    fillColor: const Color(0xFFF8FAFC),
-                                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(14),
-                                      borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                                    ),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(14),
-                                      borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Créneau',
-                                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
-                                ),
-                                const SizedBox(height: 8),
-                                Container(
-                                  height: 48,
-                                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFF8FAFC),
-                                    borderRadius: BorderRadius.circular(14),
-                                    border: Border.all(color: const Color(0xFFE2E8F0)),
-                                  ),
-                                  child: DropdownButtonHideUnderline(
-                                    child: DropdownButton<String>(
-                                      value: _selectedSlot,
-                                      isExpanded: true,
-                                      icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Color(0xFF64748B), size: 20),
-                                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF0F172A)),
-                                      items: const [
-                                        DropdownMenuItem(
-                                          value: 'Matin (8h – 12h)',
-                                          child: Text('Matin (8h – 12h)', overflow: TextOverflow.ellipsis),
-                                        ),
-                                        DropdownMenuItem(
-                                          value: 'Après-midi (14h – 18h)',
-                                          child: Text('Après-midi (14h – 18h)', overflow: TextOverflow.ellipsis),
-                                        ),
-                                        DropdownMenuItem(
-                                          value: 'Soir (18h – 21h)',
-                                          child: Text('Soir (18h – 21h)', overflow: TextOverflow.ellipsis),
-                                        ),
-                                        DropdownMenuItem(
-                                          value: 'Urgence immédiate',
-                                          child: Text('Urgence immédiate', overflow: TextOverflow.ellipsis),
-                                        ),
-                                      ],
-                                      onChanged: (val) {
-                                        if (val != null) setState(() => _selectedSlot = val);
-                                      },
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 16),
-
-                // 4. Card: Budget indicatif
-                Container(
-                  padding: const EdgeInsets.all(18),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: const Color(0xFFE2E8F0)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.02),
-                        blurRadius: 10,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: const [
-                          Text(
-                            'Budget indicatif (optionnel)',
-                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
-                          ),
-                          Text(
-                            'En F CFA',
-                            style: TextStyle(fontSize: 12, color: Color(0xFF64748B), fontWeight: FontWeight.w600),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextFormField(
-                              controller: _budgetController,
-                              keyboardType: TextInputType.number,
-                              enabled: !_isSurDevis,
-                              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
-                              decoration: InputDecoration(
-                                filled: true,
-                                fillColor: _isSurDevis ? const Color(0xFFE2E8F0) : const Color(0xFFF8FAFC),
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(14),
-                                  borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(14),
-                                  borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                _isSurDevis = !_isSurDevis;
-                                if (_isSurDevis) {
-                                  _budgetController.text = 'Sur devis';
-                                } else {
-                                  _budgetController.text = '15 000';
-                                }
-                              });
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                              decoration: BoxDecoration(
-                                color: _isSurDevis ? const Color(0xFF2563EB) : const Color(0xFFEFF6FF),
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                              child: Text(
-                                'Sur devis',
-                                style: TextStyle(
-                                  color: _isSurDevis ? Colors.white : const Color(0xFF1E3A8A),
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 28),
-
-                // 5. Submit Button (Bottom Pill)
-                SizedBox(
-                  width: double.infinity,
-                  height: 52,
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2563EB),
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    ),
-                    icon: const Icon(Icons.send_rounded, size: 18),
-                    label: const Text(
-                      'Envoyer la demande',
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
-                    ),
-                    onPressed: _submit,
-                  ),
-                ),
-                const SizedBox(height: 20),
-              ],
-            ),
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: selected ? Palette.primary : Colors.white,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            border:
+                Border.all(color: selected ? Palette.primary : Palette.border),
+          ),
+          padding: const EdgeInsets.all(6),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(categoryIcon(category.icon),
+                  color: selected ? Colors.white : Palette.primary, size: 26),
+              const SizedBox(height: 6),
+              Text(
+                category.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: selected ? Colors.white : Palette.text),
+              ),
+            ],
           ),
         ),
       ),
