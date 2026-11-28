@@ -1,158 +1,158 @@
-# FasoSkills — Plateforme de mise en relation entre artisans et clients (T18)
+# FasoSkills — Marketplace Connecting Artisans and Clients (T18)
 
-> **Pitch :** FasoSkills est une plateforme mobile permettant aux particuliers au Burkina Faso de trouver rapidement des artisans locaux qualifiés (plombiers, électriciens, menuisiers), de publier des demandes de dépannage et de recevoir des devis en temps réel. Grâce aux WebSockets et à une architecture décentralisée et sécurisée, clients et artisans négocient, échangent des messages instantanés et contractualisent leurs interventions en toute confiance.
-
----
-
-## 👥 Équipe et Rôles (Section 2.2)
-
-- **Team Lead :** Coordination globale, issue board, intégration finale.
-- **API Lead :** Conception de l'API REST & WebSocket, modèle de données MongoDB, sécurité & tests d'intégration.
-- **App Lead :** Clean Architecture Flutter, gestion d'état BLoC, navigation déclarative `go_router`.
-- **Quality Lead :** Pipeline CI/CD GitHub Actions, linters, stratégie de tests unitaires et intégration.
-- **Product / UX Lead :** Parcours utilisateurs, design system, états de chargement / vide / erreur, temps réel.
+> **Pitch:** FasoSkills is a mobile platform enabling residents in Burkina Faso to quickly find qualified local artisans (plumbers, electricians, carpenters), post service requests, and receive real-time quotes. Powered by WebSockets and a secure, decentralized architecture, clients and artisans can negotiate, exchange instant messages, and formalize their jobs with confidence.
 
 ---
 
-## 🔗 Liens du Projet
+## 👥 Team and Roles (Section 2.2)
 
-- **API Déployée :** `https://api.fasoskills.bf` (ou instance Render/Railway)
-- **WebSocket URL :** `wss://api.fasoskills.bf/ws`
-- **Release APK :** `docs/releases/fasoskills-v1.0.0.apk`
-- **Vidéo de démonstration (3 min) :** `docs/demo-video.mp4`
+- **Team Lead:** Overall coordination, issue board, final integration.
+- **API Lead:** REST & WebSocket API design, MongoDB data model, security & integration tests.
+- **App Lead:** Flutter Clean Architecture, BLoC state management, declarative `go_router` navigation.
+- **Quality Lead:** GitHub Actions CI/CD pipeline, linters, unit and integration testing strategy.
+- **Product / UX Lead:** User journeys, design system, loading / empty / error states, real-time experience.
 
 ---
 
-## 🚀 Comment lancer tout le projet localement en moins de 10 minutes
+## 🔗 Project Links
 
-### Prérequis
-- Node.js 24+ et npm
-- Flutter 3.24+ (ou stable)
-- MongoDB local ou URI MongoDB Atlas (optionnel pour les tests grâce à `mongodb-memory-server`)
+- **Deployed API:** `https://api.fasoskills.bf` (or Render/Railway instance)
+- **WebSocket URL:** `wss://api.fasoskills.bf/ws`
+- **Release APK:** `docs/releases/fasoskills-v1.0.0.apk`
+- **Demo Video (3 min):** `docs/demo-video.mp4`
 
-### 1. Démarrer l'API Backend (`api/`)
+---
+
+## 🚀 How to Run the Entire Project Locally in Under 10 Minutes
+
+### Prerequisites
+- Node.js 24+ and npm
+- Flutter 3.24+ (or stable)
+- Local MongoDB or MongoDB Atlas URI (optional for tests thanks to `mongodb-memory-server`)
+
+### 1. Start the Backend API (`api/`)
 
 ```bash
 cd api
 
-# 1. Installer les dépendances
+# 1. Install dependencies
 npm install
 
-# 2. Remplir le fichier d'environnement (déjà pré-configuré par défaut)
+# 2. Populate the environment file (already pre-configured by default)
 cp .env.example .env
 
-# 3. Peupler la base avec les données de démonstration et comptes de test
+# 3. Seed the database with demo data and test accounts
 npm run seed
 
-# 4. Lancer l'API en mode développement
+# 4. Start the API in development mode
 npm run dev
 ```
 
-L'API sera active sur `http://localhost:8000` et les WebSockets sur `ws://localhost:8000/ws`.
+The API will be running on `http://localhost:8000` and WebSockets on `ws://localhost:8000/ws`.
 
-Pour exécuter la suite de tests d'intégration automatisés :
+To run the automated integration test suite:
 ```bash
 npm test
 ```
 
-### 2. Démarrer l'Application Mobile Flutter (`app/`)
+### 2. Start the Flutter Mobile App (`app/`)
 
 ```bash
 cd app
 
-# 1. Récupérer les paquets
+# 1. Fetch packages
 flutter pub get
 
-# 2. Vérifier la conformité du code et exécuter les tests BLoC
+# 2. Check code compliance and run BLoC tests
 flutter analyze
 flutter test
 
-# 3. Lancer l'application avec configuration via --dart-define (Exigence F13)
+# 3. Run the app with configuration via --dart-define (Requirement F13)
 flutter run --dart-define=API_BASE_URL=http://127.0.0.1:8000/api --dart-define=WS_URL=ws://127.0.0.1:8000/ws
 ```
 
 ---
 
-## 🔑 Comptes de test (Peuplés via `npm run seed`)
+## 🔑 Test Accounts (Seeded via `npm run seed`)
 
-| Rôle | Email | Mot de passe | Description |
+| Role | Email | Password | Description |
 | :--- | :--- | :--- | :--- |
-| **Administrateur** | `admin@fasoskills.bf` | `Password123!` | Validation des badges artisans, modération |
-| **Client** | `client1@fasoskills.bf` | `Password123!` | Publication de demandes, acceptation de devis |
-| **Client** | `client2@fasoskills.bf` | `Password123!` | Évaluation d'interventions terminées |
-| **Artisan** | `artisan1@fasoskills.bf` | `Password123!` | Plombier qualifié (Ouagadougou), soumission de devis |
-| **Artisan** | `artisan2@fasoskills.bf` | `Password123!` | Électricien solaire (Bobo-Dioulasso) |
-| **Artisan (en attente)** | `artisan3@fasoskills.bf` | `Password123!` | Menuisier à Koudougou (en attente de vérification admin) |
+| **Administrator** | `admin@fasoskills.bf` | `Password123!` | Artisan badge verification, moderation |
+| **Client** | `client1@fasoskills.bf` | `Password123!` | Post requests, accept quotes |
+| **Client** | `client2@fasoskills.bf` | `Password123!` | Rate completed jobs |
+| **Artisan** | `artisan1@fasoskills.bf` | `Password123!` | Qualified plumber (Ouagadougou), submit quotes |
+| **Artisan** | `artisan2@fasoskills.bf` | `Password123!` | Solar electrician (Bobo-Dioulasso) |
+| **Artisan (pending)** | `artisan3@fasoskills.bf` | `Password123!` | Carpenter in Koudougou (pending admin verification) |
 
 ---
 
-## 📋 Table des Endpoints de l'API (A13)
+## 📋 API Endpoints Table (A13)
 
-| Méthode | Endpoint | Rôle requis | Code Succès | Codes Erreurs | Description / Règle métier |
+| Method | Endpoint | Required Role | Success Code | Error Codes | Description / Business Rule |
 | :--- | :--- | :--- | :---: | :---: | :--- |
-| `POST` | `/api/auth/register` | Public | 201 | 400, 409, 422 | Inscription client ou artisan |
-| `POST` | `/api/auth/login` | Public | 200 | 401, 422 | Connexion avec émission de paire de tokens |
-| `POST` | `/api/auth/refresh` | Public | 200 | 401 | Rotation stricte du refresh token (A6) |
-| `POST` | `/api/auth/logout` | Authentifié | 200 | 400 | Révocation de la session en base |
-| `GET` | `/api/auth/me` | Authentifié | 200 | 401 | Profil de l'utilisateur connecté |
-| `GET` | `/api/categories` | Public | 200 | - | Liste des corps de métier actifs (`?includeInactive=true` pour Admin) |
-| `POST` | `/api/categories` | Admin | 201 | 409, 422 | Création d'une catégorie de métier |
-| `PATCH` | `/api/categories/:id` | Admin | 200 | 404, 409, 422 | Mise à jour d'une catégorie (dont `isActive`) |
-| `DELETE` | `/api/categories/:id` | Admin | 204 | 404, 409 | Suppression d'une catégorie inutilisée |
-| `GET` | `/api/artisans` | Public | 200 | 400 | Liste paginée, recherche plein texte et filtres |
-| `GET` | `/api/artisans/:id` | Public | 200 | 404 | Détail complet d'un artisan et avis |
-| `PUT` | `/api/artisans/:id` | Artisan/Admin | 200 | 403, 404 | Modification de son profil uniquement (A7) |
-| `POST` | `/api/artisans/:id/verify` | Admin | 200 | 403, 404, 409 | Attribution du badge vérifié (T18) |
-| `GET` | `/api/admin/stats` | Admin | 200 | 401, 403 | Métriques globales & graphiques (agrégation MongoDB) |
-| `GET` | `/api/admin/artisans` | Admin | 200 | 401, 403, 422 | Liste paginée filtrée (`status=pending\|verified\|all`, `q`) |
-| `GET` | `/api/admin/artisans/:id` | Admin | 200 | 401, 403, 404 | Détail complet artisan & pièces justificatives |
-| `POST` | `/api/admin/artisans/:id/reject` | Admin | 200 | 401, 403, 404, 422 | Refus de vérification avec motif (`reason`) |
-| `GET` | `/api/admin/categories` | Admin | 200 | 401, 403 | Liste complète des catégories (actives et inactives) |
-| `POST` | `/api/reports` | Client/Artisan | 201 | 401, 404, 422 | Signalement d'un contenu (`request`, `review`, `message`) |
-| `GET` | `/api/admin/reports` | Admin | 200 | 401, 403, 422 | Liste paginée des signalements (`type`, `status`) |
-| `PATCH` | `/api/admin/reports/:id` | Admin | 200 | 401, 403, 404 | Ignorer / résoudre un signalement |
-| `DELETE` | `/api/admin/content/:type/:id` | Admin | 204 | 401, 403, 404 | Suppression de contenu modéré avec motif journalisé |
-| `GET` | `/api/admin/moderation-logs` | Admin | 200 | 401, 403 | Journal d'audit des actions de modération |
-| `GET` | `/api/requests` | Public / Auth | 200 | 400 | Liste paginée des demandes (filtre `myOnly`) |
-| `POST` | `/api/requests` | Client | 201 | 401, 422 | Création d'une demande + diffusion WebSocket |
-| `PUT` | `/api/requests/:id` | Client/Admin | 200 | 403, 404 | Modification de sa propre demande uniquement |
-| `DELETE` | `/api/requests/:id` | Client/Admin | 200 | 403, 404 | Annulation de sa demande |
-| `POST` | `/api/quotes` | Artisan | 201 | 403, 409, 422 | Soumission de devis pour une demande |
-| `GET` | `/api/quotes/request/:requestId` | Requester / Artisan | 200 | 403, 404 | Seul le client voit les devis de sa demande (T18) |
-| `POST` | `/api/quotes/:id/accept` | Client | 200 | 403, 404, 409 | Acceptation unique d'un devis (T18) |
-| `POST` | `/api/reviews` | Client | 201 | 403, 409, 422 | Avis uniquement pour prestation terminée (T18) |
-| `GET` | `/api/reviews/artisan/:artisanId` | Public | 200 | 404 | Liste des avis reçus par l'artisan |
-| `GET` | `/api/chat/conversations` | Authentifié | 200 | 401 | Liste des conversations de l'utilisateur |
-| `GET` | `/api/chat/conversations/:id/messages` | Participant | 200 | 403, 404 | Historique des messages d'une discussion |
-| `POST` | `/api/chat/conversations/:id/messages` | Participant | 201 | 403, 404 | Envoi d'un message + broadcast WebSocket |
-| `WS` | `/ws` | Authentifié | 101 | 401 | Connexion WebSocket temps réel (devis, chat, statuts) |
+| `POST` | `/api/auth/register` | Public | 201 | 400, 409, 422 | Client or artisan registration |
+| `POST` | `/api/auth/login` | Public | 200 | 401, 422 | Login with token pair issuance |
+| `POST` | `/api/auth/refresh` | Public | 200 | 401 | Strict refresh token rotation (A6) |
+| `POST` | `/api/auth/logout` | Authenticated | 200 | 400 | Session revocation in database |
+| `GET` | `/api/auth/me` | Authenticated | 200 | 401 | Authenticated user profile |
+| `GET` | `/api/categories` | Public | 200 | - | List of active trade categories (`?includeInactive=true` for Admin) |
+| `POST` | `/api/categories` | Admin | 201 | 409, 422 | Create a trade category |
+| `PATCH` | `/api/categories/:id` | Admin | 200 | 404, 409, 422 | Update a category (including `isActive`) |
+| `DELETE` | `/api/categories/:id` | Admin | 204 | 404, 409 | Delete an unused category |
+| `GET` | `/api/artisans` | Public | 200 | 400 | Paginated list, full-text search, and filters |
+| `GET` | `/api/artisans/:id` | Public | 200 | 404 | Full artisan details and reviews |
+| `PUT` | `/api/artisans/:id` | Artisan/Admin | 200 | 403, 404 | Update own profile only (A7) |
+| `POST` | `/api/artisans/:id/verify` | Admin | 200 | 403, 404, 409 | Grant verified badge (T18) |
+| `GET` | `/api/admin/stats` | Admin | 200 | 401, 403 | Global metrics & charts (MongoDB aggregation) |
+| `GET` | `/api/admin/artisans` | Admin | 200 | 401, 403, 422 | Filtered paginated list (`status=pending\|verified\|all`, `q`) |
+| `GET` | `/api/admin/artisans/:id` | Admin | 200 | 401, 403, 404 | Full artisan details & supporting documents |
+| `POST` | `/api/admin/artisans/:id/reject` | Admin | 200 | 401, 403, 404, 422 | Verification rejection with reason (`reason`) |
+| `GET` | `/api/admin/categories` | Admin | 200 | 401, 403 | Full list of categories (active and inactive) |
+| `POST` | `/api/reports` | Client/Artisan | 201 | 401, 404, 422 | Report content (`request`, `review`, `message`) |
+| `GET` | `/api/admin/reports` | Admin | 200 | 401, 403, 422 | Paginated list of reports (`type`, `status`) |
+| `PATCH` | `/api/admin/reports/:id` | Admin | 200 | 401, 403, 404 | Dismiss / resolve a report |
+| `DELETE` | `/api/admin/content/:type/:id` | Admin | 204 | 401, 403, 404 | Delete moderated content with logged reason |
+| `GET` | `/api/admin/moderation-logs` | Admin | 200 | 401, 403 | Audit log of moderation actions |
+| `GET` | `/api/requests` | Public / Auth | 200 | 400 | Paginated list of requests (`myOnly` filter) |
+| `POST` | `/api/requests` | Client | 201 | 401, 422 | Create a request + WebSocket broadcast |
+| `PUT` | `/api/requests/:id` | Client/Admin | 200 | 403, 404 | Update own request only |
+| `DELETE` | `/api/requests/:id` | Client/Admin | 200 | 403, 404 | Cancel own request |
+| `POST` | `/api/quotes` | Artisan | 201 | 403, 409, 422 | Submit a quote for a request |
+| `GET` | `/api/quotes/request/:requestId` | Requester / Artisan | 200 | 403, 404 | Only the client can view quotes for their request (T18) |
+| `POST` | `/api/quotes/:id/accept` | Client | 200 | 403, 404, 409 | Single-quote acceptance (T18) |
+| `POST` | `/api/reviews` | Client | 201 | 403, 409, 422 | Review allowed only for completed jobs (T18) |
+| `GET` | `/api/reviews/artisan/:artisanId` | Public | 200 | 404 | List of reviews received by the artisan |
+| `GET` | `/api/chat/conversations` | Authenticated | 200 | 401 | List of user conversations |
+| `GET` | `/api/chat/conversations/:id/messages` | Participant | 200 | 403, 404 | Message history for a conversation |
+| `POST` | `/api/chat/conversations/:id/messages` | Participant | 201 | 403, 404 | Send a message + WebSocket broadcast |
+| `WS` | `/ws` | Authenticated | 101 | 401 | Real-time WebSocket connection (quotes, chat, statuses) |
 
 ---
 
-## ⚡ Fonctionnalité Avancée (Section 3.4) : Mises à jour en temps réel (WebSockets)
+## ⚡ Advanced Feature (Section 3.4): Real-Time Updates (WebSockets)
 
-- **Serveur :** Serveur WebSocket nativement intégré dans le serveur HTTP Express (`src/core/websocket/ws-server.ts`), authentifié par jeton JWT.
-- **Canaux :** Canaux utilisateurs privés (`user:<userId>`) et salons de discussion (`conversation:<convId>`, `request:<requestId>`).
-- **Événements temps réel :**
-  - `quote:received` : Notification instantanée au client dès qu'un artisan soumet un devis.
-  - `quote:accepted` : Alerte temps réel à l'artisan lorsque son offre est retenue.
-  - `message:received` : Réception instantanée des messages de discussion sans rechargement.
-  - `request:updated` : Mise à jour synchronisée des statuts d'intervention.
-
----
-
-## 🛡️ Règles de Sécurité et Architecture
-
-1. **Aucun secret dans le dépôt :** Les clés privées sont injectées par variables d'environnement (`.env`), validées au démarrage par un schéma **Zod**.
-2. **Autorisations au niveau objet (A7) :** Un client ne peut ni modifier ni annuler les demandes d'un autre client ; un artisan ne peut modifier que son propre profil ; les devis d'une demande ne sont visibles que par l'auteur de la demande.
-3. **Gestion d'état BLoC / Clean Architecture (F1, F2) :** Découpage strict `domain` (pur Dart, sans dépendance framework), `data` (repositories, clients HTTP/WS), `presentation` (BLoCs, écrans).
-4. **Mises à jour optimistes (F8) :** L'annulation d'une demande met à jour l'interface instantanément avec mécanisme automatique de *rollback* si l'appel réseau échoue.
-5. **Stratégie Cache then Network (F9) :** Le flux des artisans et les catégories sont mis en cache localement pour permettre un démarrage instantané même hors-ligne.
-6. **Rafraîchissement concurrent-safe des tokens (F6) :** En cas d'échecs 401 simultanés sur plusieurs requêtes, une seule demande de refresh est émise, les autres attendent son résultat et sont rejouées.
+- **Server:** WebSocket server natively integrated into the Express HTTP server (`src/core/websocket/ws-server.ts`), authenticated via JWT token.
+- **Channels:** Private user channels (`user:<userId>`) and chat/request rooms (`conversation:<convId>`, `request:<requestId>`).
+- **Real-time events:**
+  - `quote:received`: Instant notification to the client as soon as an artisan submits a quote.
+  - `quote:accepted`: Real-time alert to the artisan when their offer is accepted.
+  - `message:received`: Instant delivery of chat messages without reloading.
+  - `request:updated`: Synchronized updates of job statuses.
 
 ---
 
-## ⚠️ Limitations connues
+## 🛡️ Security and Architecture Rules
 
-- Le système de géolocalisation utilise pour l'instant un filtrage par ville (`Ouagadougou`, `Bobo-Dioulasso`, etc.) et adresse textuelle ; le calcul GPS direct par index 2dsphere peut être étendu.
-- Le stockage des photos est configuré en URLs directes / base64 ; l'intégration d'un bucket S3 avec signed URLs est prête à être branchée pour la production.
+1. **No secrets in the repository:** Private keys are injected via environment variables (`.env`), validated at startup by a **Zod** schema.
+2. **Object-level authorization (A7):** A client cannot edit or cancel another client's requests; an artisan can only edit their own profile; quotes for a request are visible only to the request's author.
+3. **BLoC State Management / Clean Architecture (F1, F2):** Strict separation into `domain` (pure Dart, framework-independent), `data` (repositories, HTTP/WS clients), and `presentation` (BLoCs, screens).
+4. **Optimistic updates (F8):** Canceling a request updates the UI immediately with an automatic *rollback* mechanism if the network call fails.
+5. **Cache-then-Network strategy (F9):** The artisan feed and categories are cached locally to enable instant startup even offline.
+6. **Concurrency-safe token refresh (F6):** When simultaneous 401 errors occur across multiple requests, only a single refresh request is issued; the others wait for its result and are replayed.
+
+---
+
+## ⚠️ Known Limitations
+
+- The geolocation system currently uses city-based filtering (`Ouagadougou`, `Bobo-Dioulasso`, etc.) and text addresses; direct GPS distance calculation via a `2dsphere` index can be extended.
+- Photo storage is configured using direct URLs / base64; S3 bucket integration with signed URLs is ready to be plugged in for production.
